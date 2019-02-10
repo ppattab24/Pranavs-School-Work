@@ -1,14 +1,14 @@
-#ifndef _MANAGER_H_
-#define _MANAGER_H_
+#ifndef MANAGER_H
+#define MANAGER_H
 
 #include <string>
 #include <cstring>
 #include <stack>
-#include queue>
+#include <queue>
 #include <unistd.h>
 #include <cstdlib>
 #include <climits>
-#inlcude <cassert>
+#include <cassert>
 #include <vector>
 #include <fstream>
 #include <sys/stat.h>

@@ -14,5 +14,29 @@ void Manager::run()
 	}
 	Token userLine;
 	queue<Token> delimited_token_queue, main_token_queue;
-	Parse limit(userInput, ';', false, false);
+	Parse firstParse(userInput, ';', false, false);
+	
+	while(!limit.done())
+	{
+		limit >> userLine;
+
+		Parse secondParse(userLine.toString(), ' ', true, true);
+		secondParse.compressContents();
+		secondParse.reinitializeStates();
+
+		while(!secondParse.done())
+		{
+			Token thisInput;
+			secondParse >> thisInput;
+			delimited_token_queue.push(thisInput);
+		}
+
+		// Parenthesis check here
+
+		ShuntingYard output(delimited-token_queue);
+		queue<Token> parsedQueue = output.getReversePolish();
+		evalPostFix(parsedQueue);
+		clearQueue(delimited_token_queue);
+		cout << endl;
+	}
 }
