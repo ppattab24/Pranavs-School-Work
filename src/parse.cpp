@@ -12,5 +12,7 @@ Parse::Parse(char* cstring, char delimiter, bool quotesSeparate, bool Tests)
 
 Parse::Parse(string str, char delimiter, bool quotesSeparate, bool Tests)
 {
-	str 
+	str = padDelim(str, '(');
+	str = padDelim(str, ')');
+	
 }
