@@ -30,13 +30,21 @@ void Manager::run()
 		{
 			Token thisInput;
 			secondParse >> thisInput;
+					cout << "\n" << thisInput.toString() << " is in secondParse\n\n";
+
 			delimited_token_queue.push(thisInput);
+
+					cout << "\ndelimited_token_queue is " << delimited_token_queue.empty() << "\n\n";
+
 		}
 
 		// Parenthesis check here
 
 		ShuntingYard output(delimited_token_queue);
+
 		queue<Token> parsedQueue = output.getReversie();
+
+		cout << "\nparsedQueue is " << parsedQueue.empty() << "\n\n";
 		evalPostFix(parsedQueue);
 		clearAll(delimited_token_queue);
 		cout << endl;
@@ -123,6 +131,8 @@ void Manager::evalPostFix(queue<Token>& token_postfix_queue)
 
     while(!token_postfix_queue.empty())
     {
+	cout << "\nI am the evalPostFix Function while loop!\n\n";
+
         if (token_postfix_queue.front().getStatus() != Token::connector)
         {
             token_eval_stack.push(token_postfix_queue.front());
@@ -158,6 +168,8 @@ void Manager::evalPostFix(queue<Token>& token_postfix_queue)
     if (token_eval_stack.size() == 1 && !token_eval_stack.top().toString().empty())
     {
         ifstream path(token_eval_stack.top().toString().c_str());
+	
+	cout << "\nThe command " << token_eval_stack.top().toString() << "'s status is " << token_eval_stack.top().getStatus() << "\n\n"; 
 
         switch(token_eval_stack.top().getStatus())
         {
