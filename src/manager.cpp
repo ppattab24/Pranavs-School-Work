@@ -1,145 +1,163 @@
 #include "../header/manager.h"
 
-void Manager::run() 
-{
-	char userInput[1024];
+void Manager::run() {
 
-	while(true)
-	{
-		memset(userInput, 0, sizeof(userInput));
-		cout << "$ ";
-		cin.getline(userInput, 1024);
-		userInput[cin.gcount()] = '\0';
-		cout << endl;
+    char input[1024];
 
-		Token userLine;
-		queue<Token> delimited_token_queue, main_token_queue;
-		Parse firstParse(userInput, ';', false, false);
-		cout << "\n" << userInput << " is in firstParse\n\n"; 
-		while(!firstParse.done())
-		{	
-			firstParse >> userLine;
-	
-		Parse secondParse(userLine.toString(), ' ', true, true);
-		secondParse.compressContents();
-		secondParse.reinitializeStates();
-		
-		cout << "\n" << userLine.toString() << " is in secondParse\n\n";
-		
-		while(!secondParse.done())
-		{
-			Token thisInput;
-			secondParse >> thisInput;
-					cout << "\n" << thisInput.toString() << " is in secondParse\n\n";
-
-			delimited_token_queue.push(thisInput);
-
-					cout << "\ndelimited_token_queue is " << delimited_token_queue.empty() << "\n\n";
-
-		}
-
-		// Parenthesis check here
-
-		ShuntingYard output(delimited_token_queue);
-
-		queue<Token> parsedQueue = output.getReversie();
-
-		cout << "\nparsedQueue is " << parsedQueue.empty() << "\n\n";
-		evalPostFix(parsedQueue);
-		clearAll(delimited_token_queue);
-		cout << endl;
-		}
-	}
-}
-
-void Manager::execute(string command_string) {
-	
-	char* cString = str_to_char(command_string);
-	char* command[64];
-	memset(command, 0, sizeof(command));
-	
-	parse(cString, command);
-	
-	execute(command);
-	
-	delete[] cString;
-	
-	
-}
-
-void Manager::execute(char** command) {
-	
-	pid_t process_id;	
-	int status;
-	
-	if (equals(*command, "exit", false)) {
-		exit(0);
-	}
-	
-	if ((process_id = fork()) < 0) {
-		exit(1);
-	}
-	else if (process_id == 0) {
-		if (execvp(*command, command) < 0) {
-			cerr<< "Command did not execute:failed" << endl;
-			successful = false;
-		}
-		else {
-			successful = true;	
-		}
-	}
-	else {
-		successful = true;
-		while (wait(&status) != process_id)
-		{
-		
-			if (WEXITSTATUS(status)) {
-				successful = false;
-			}
-		}
-	
-	
-	}
-}
-
-void Manager::parse(char *line, char **command)
-{
-    while (*line != '\0')  
+    while(true)
     {
+        memset(input, 0, sizeof(input));  //clears input for future input
 
-        while (*line == ' ' || *line == '\t' || *line == '\n')
+        cout << "$ ";
+        cin.getline(input, 1024);
+        input[cin.gcount()] = '\0';  //null-terminated
+        cout << endl;
+
+        Token currLine;
+        queue<Token> delimited_queue, main_token_queue;
+        Parse d(input, ';', false, false);  //Constructor delimits input
+
+        while(!d.done())
         {
-            *line = '\0';
-            line++;
-        }
+            d >> currLine;
 
-        *command = line;
-        command++;
+            Parse dd(currLine.toString(), ' ', true, true);
+            dd.compressTokens();
+            dd.checkFlagsAndReinitStatus();
 
-        while (*line != '\0' && *line != ' ' && *line != '\t' && *line != '\n')
-        {
-            line++;
+            while(!dd.done())
+            {
+                Token currToken;
+                dd >> currToken;
+
+                delimited_queue.push(currToken);
+            }
+
+            //main_token_queue = combineCommands(delimited_queue);
+
+            if(!parenthesisChecker(delimited_queue))
+            {
+                cerr << "ERROR: Uneven amount of parenthesis" << endl;
+                continue;
+            }
+
+            shuntingYard sy(delimited_queue);
+            queue<Token> evalQueue = sy.getReversePolish();
+            evalPostFix(evalQueue);
+
+            clearAll(delimited_queue);
+
+            cout << endl;
         }
     }
 }
 
+void Manager::execute(char **command)
+{
+    pid_t process_id;
+    int status;
+
+    if (equals(*command, "exit", false)){
+
+        //cerr << "Exiting!!" << endl;
+        exit(0);
+    }
+
+    //cerr << "Would be running execute() here!!" << endl;
+    if((process_id = fork()) < 0)   // if something went wrong with forking the process
+    {
+        //cerr << "ERROR: child process forking failed" << endl;
+        //cerr << "In first block in execute()" << endl;
+        exit(1);
+    }
+    else if (process_id == 0)       // if child process was created
+    {
+        //cerr << "In second block in execute()" << endl;
+
+        if(execvp(*command, command) < 0)
+        {
+            cerr << "ERROR: command failed to execute()" << endl;
+            wasSuccess = false;
+        }
+        else
+        {
+            //cerr << "hey I ran, wasSuccess should be true" << endl;
+            wasSuccess = true;
+        }
+    }
+    else
+    {
+        //cerr << "In third block in execute()" << endl;
+        wasSuccess = true;
+        while(wait(&status) != process_id);
+
+        if(WEXITSTATUS(status)) //if it wasn't successful
+            wasSuccess = false;
+    }
+}
+
+void Manager::execute(string commandStr) {
+
+    char * cStr = str_to_char(commandStr);
+    char * cmd[64];
+    memset(cmd, 0, sizeof(cmd));
+
+    parse(cStr, cmd);
+
+    execute(cmd);
+
+    delete [] cStr;
+}
+
+/** parse
+ * @brief Populates command (an array of cstrings) with cstrings delimited by whitespace
+ * @param input Beginning of cstring containing all args
+ * @param command array of cstrings which this function will populate
+**/
+void Manager::parse(char *input, char **command)
+{
+    while (*input != '\0')  //While you're not at the end of the cstring
+    {
+
+        //Replace whitespace with \0
+        while (*input == ' ' || *input == '\t' || *input == '\n')
+        {
+            *input = '\0';
+            input++;
+        }
+
+        //Save input to its place in command, and move command walker forwward
+        *command = input;
+        command++;
+
+        //Advance input to the next non-whitespace character
+        while (*input != '\0' && *input != ' ' && *input != '\t' && *input != '\n')
+        {
+            input++;
+        }
+    }
+}
+
+/**
+ * @brief Evaluates the queue (already in postfix notation)
+ * @param string_postfix_queue a queue that contains an expression in postfix notation
+ */
 void Manager::evalPostFix(queue<Token>& token_postfix_queue)
 {
-	cout << "\nI am the evalPostFix Function!\n\n";
     stack<Token> token_eval_stack;
     vector<Token> vectorToEval;
 
     while(!token_postfix_queue.empty())
     {
-	cout << "\nI am the evalPostFix Function while loop!\n\n";
-
         if (token_postfix_queue.front().getStatus() != Token::connector)
         {
             token_eval_stack.push(token_postfix_queue.front());
             token_postfix_queue.pop();
         }
-        else
-	{
+        else //if token is an operator
+        {
+            //Prepare the binary expression
+
             Token op2 = token_eval_stack.top();
             token_eval_stack.pop();
 
@@ -149,13 +167,17 @@ void Manager::evalPostFix(queue<Token>& token_postfix_queue)
             Token op1 = token_eval_stack.top();
             token_eval_stack.pop();
 
+            // [command] [connector] [command]
             vectorToEval.push_back(op1);
             vectorToEval.push_back(connector);
             vectorToEval.push_back(op2);
 
-            evaluate(vectorToEval);
-	    vectorToEval.clear();  
-            if (successful ) {
+            //Evaluate the binary expression!
+            evaluate(vectorToEval); //updates wasSuccess
+            vectorToEval.clear();   //clears vector for next bin expression
+
+            //Push result onto the stack
+            if (wasSuccess) {
                 Token t("", Token::good);
                 token_eval_stack.push(t);
             } else {
@@ -168,8 +190,6 @@ void Manager::evalPostFix(queue<Token>& token_postfix_queue)
     if (token_eval_stack.size() == 1 && !token_eval_stack.top().toString().empty())
     {
         ifstream path(token_eval_stack.top().toString().c_str());
-	
-	cout << "\nThe command " << token_eval_stack.top().toString() << "'s status is " << token_eval_stack.top().getStatus() << "\n\n"; 
 
         switch(token_eval_stack.top().getStatus())
         {
@@ -208,9 +228,15 @@ void Manager::evalPostFix(queue<Token>& token_postfix_queue)
     }
 }
 
+/**
+ * @brief Evaluates a binary expression according to rules for && and ||
+ * @param binExpression - expression of the form A ** B
+ *        (where A and B are individually executable commands,
+ *        and where ** is connector && or ||)
+ * NOTE: Modifies Manager::wasSuccess
+ */
 void Manager::evaluate(vector<Token> binExpression)
 {
-	cout << "\nI am the evaluate function!\n\n";
     assert(binExpression.size() == 3);  //first command, connector, last command
 
     ifstream path(binExpression[0].toString().c_str());
@@ -224,9 +250,9 @@ void Manager::evaluate(vector<Token> binExpression)
             break;
         case Token::test2:
 
-            successful  = path.good();
+            wasSuccess = path.good();
 
-            if (successful )
+            if (wasSuccess)
                 cout << "(True)" << endl;
             else
                 cout << "(False)" << endl;
@@ -234,9 +260,9 @@ void Manager::evaluate(vector<Token> binExpression)
             break;
         case Token::test1:
 
-            successful  = isThisADirectory(binExpression[0].toString());
+            wasSuccess = isThisADirectory(binExpression[0].toString());
 
-            if (successful )
+            if (wasSuccess)
                 cout << "(True)" << endl;
             else
                 cout << "(False)" << endl;
@@ -244,9 +270,9 @@ void Manager::evaluate(vector<Token> binExpression)
             break;
         case Token::test3:
 
-            successful  = isThisAFile(binExpression[0].toString());
+            wasSuccess = isThisAFile(binExpression[0].toString());
 
-            if (successful )
+            if (wasSuccess)
                 cout << "(True)" << endl;
             else
                 cout << "(False)" << endl;
@@ -261,12 +287,17 @@ void Manager::evaluate(vector<Token> binExpression)
 
     path.close();
 
-    binExpression[0].setStatus(successful );
+    binExpression[0].setStatus(wasSuccess);
 
     if(shouldExecute(binExpression))
         execute(binExpression[2].toString());
 }
 
+/**
+ * @brief Determines if connectors permit the execution of a command
+ * @param vector of Tokens of either form "<cmd> ** <cmd>" or "** <cmd>" (where ** denotes a connector, && or ||)
+ * NOTE: wasSuccess must be properly updated from the previous command!!!!!!!!!!!!!
+**/
 bool Manager::shouldExecute(vector<Token> expr)
 {
 
@@ -278,29 +309,29 @@ bool Manager::shouldExecute(vector<Token> expr)
              || (expr[0].getStatus() == Token::bad && expr[1].toString() == "||") );
 }
 
-queue<Token> Manager::combineCommands(queue<Token>& old_queue)
+queue<Token> Manager::combineCommands(queue<Token>& old_token_queue)
 {
     queue<Token> new_token_queue;
 
-    while(!old_queue.empty())
+    while(!old_token_queue.empty())
     {
         Token t("", Token::middle);
 
-        if(old_queue.front().getStatus() == Token::middle)
+        if(old_token_queue.front().getStatus() == Token::middle)
         {
-            while (old_queue.front().getStatus() == Token::middle
-                   || old_queue.front().getStatus() == Token::quotations)
+            while (old_token_queue.front().getStatus() == Token::middle
+                   || old_token_queue.front().getStatus() == Token::quotations)
             {
-                t += old_queue.front();
-                old_queue.pop();
+                t += old_token_queue.front();
+                old_token_queue.pop();
             }
 
             new_token_queue.push(t);
         }
         else
         {
-            new_token_queue.push(old_queue.front());
-            old_queue.pop();
+            new_token_queue.push(old_token_queue.front());
+            old_token_queue.pop();
         }
     }
 
@@ -316,16 +347,16 @@ bool Manager::isThisADirectory(string pathname)
     if ( access(pathname.c_str(),0) == 0 )
     {
         if (sb.st_mode & S_IFDIR) {
-            successful  = true;  //directory exists
+            wasSuccess = true;  //directory exists
             return true;
         }
         else {
-            successful  = false; //directory is not found
+            wasSuccess = false; //directory is not found
             return false;
         }
     }
 
-    successful  = false; //path is not found
+    wasSuccess = false; //path is not found
     return false;
 }
 
@@ -338,16 +369,16 @@ bool Manager::isThisAFile(string pathname)
     if ( access(pathname.c_str(),0) == 0 )
     {
         if (sb.st_mode & S_IFREG) {
-            successful  = true;  //file exists
+            wasSuccess = true;  //file exists
             return true;
         }
         else {
-            successful  = false; //file is not found
+            wasSuccess = false; //file is not found
             return false;
         }
     }
 
-    successful  = false; //path is not found
+    wasSuccess = false; //path is not found
     return false;
 }
 
