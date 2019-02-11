@@ -3,31 +3,33 @@
 #include <climits>
 #include <queue>
 #include <stack>
-#include <cstring>
-#include <cassert>
 
 #include "token.h"
-class Token;
+class Token;    //Token constructor uses cutDown, so there is circular dependency
 
 using namespace std;
 
-char* str_to_char(const string&);
+//IMPORTANT: need to deallocate the char* after finishing the use of str_to_char
+char* str_to_char(const string& str);
 
-char toLowercase(char);
+string cutDown(const string& trimMe);
 
-string toLowercase (string);
+bool equals(const char * cStr, string str, bool capsSensitive);
 
-string cutDown(const string&);
+char toLowercase(char c);
 
-void eraseBothSides(string&, size_t);
+string toLowercase(string str);
 
-void clearAll(queue<Token>& queue);
+string padParse(string str, char parser);
 
-void addItems(queue<Token>& queueAddItems, queue<Token> original);
+bool parenthesisChecker(queue<Token> checkMe);
 
-bool equals(const char *, string, bool);
+bool testChecker(queue<Token> checkMe);
 
-string padDelim(string, char);
+bool myXOR(bool val1, bool val2);
 
-// We do not need the parenthesisChecker right now
-// testChecker and myXOR are unneccessary
+void eraseBothSides(string& trimMe, size_t thisManyChars);
+
+void clearAll(queue<Token>& queue_to_clear);
+
+void addItems(queue<Token>& queue_to_AddTo, queue<Token> original);
