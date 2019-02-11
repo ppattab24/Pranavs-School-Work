@@ -7,14 +7,14 @@ using namespace std;
 
 class ShuntingYard {
 private:
-queue<token> delivery;
-queue<token> commands;
+queue<Token> delivery;
+queue<Token> command_token_queue;
 
-stack<token> operators;
+stack<Token> opStack;
 
 public:
 void run();
-ShuntingYard(queue<token> );
+ShuntingYard(queue<Token> commandQ );
 queue<Token> getReversie();
 
 

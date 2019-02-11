@@ -11,19 +11,21 @@ void Manager::run()
 		cin.getline(userInput, 1024);
 		userInput[cin.gcount()] = '\0';
 		cout << endl;
-	}
-	Token userLine;
-	queue<Token> delimited_token_queue, main_token_queue;
-	Parse firstParse(userInput, ';', false, false);
-	
-	while(!limit.done())
-	{
-		limit >> userLine;
 
+		Token userLine;
+		queue<Token> delimited_token_queue, main_token_queue;
+		Parse firstParse(userInput, ';', false, false);
+		cout << "\n" << userInput << " is in firstParse\n\n"; 
+		while(!firstParse.done())
+		{	
+			firstParse >> userLine;
+	
 		Parse secondParse(userLine.toString(), ' ', true, true);
 		secondParse.compressContents();
 		secondParse.reinitializeStates();
-
+		
+		cout << "\n" << userLine.toString() << " is in secondParse\n\n";
+		
 		while(!secondParse.done())
 		{
 			Token thisInput;
@@ -38,6 +40,7 @@ void Manager::run()
 		evalPostFix(parsedQueue);
 		clearAll(delimited_token_queue);
 		cout << endl;
+		}
 	}
 }
 
@@ -114,6 +117,7 @@ void Manager::parse(char *line, char **command)
 
 void Manager::evalPostFix(queue<Token>& token_postfix_queue)
 {
+	cout << "\nI am the evalPostFix Function!\n\n";
     stack<Token> token_eval_stack;
     vector<Token> vectorToEval;
 
@@ -194,6 +198,7 @@ void Manager::evalPostFix(queue<Token>& token_postfix_queue)
 
 void Manager::evaluate(vector<Token> binExpression)
 {
+	cout << "\nI am the evaluate function!\n\n";
     assert(binExpression.size() == 3);  //first command, connector, last command
 
     ifstream path(binExpression[0].toString().c_str());

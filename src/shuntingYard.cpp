@@ -51,4 +51,4 @@ void ShuntingYard::run()
 
 }
 
-queue<Token> ShuntingYard::getReversie { return command_token_queue; }
+queue<Token> ShuntingYard::getReversie() { return command_token_queue; }

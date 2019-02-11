@@ -7,7 +7,7 @@
 #include <cassert>
 
 #include "token.h"
-class token;
+class Token;
 
 using namespace std;
 

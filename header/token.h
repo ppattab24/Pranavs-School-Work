@@ -6,6 +6,7 @@
 #include <string>
 #include <cassert>
 #include <queue>
+#include "genuse.h"
 
 using namespace std;
 
@@ -30,8 +31,8 @@ enum Status{ good, bad, middle,
     
 void setStatus(Status);
 void setStatus(bool);
-int getStatus();
-string toString();
+int getStatus() const;
+string toString() const;
 void setString(string );
 void _pruneTest();
 
@@ -46,6 +47,8 @@ friend bool operator !=(const string& str, const Token& t);
 Token& operator +=(const Token& t);
 
 bool isTest() const;
+
+size_t _whatKindOfTest(string str); 
 
 
 };

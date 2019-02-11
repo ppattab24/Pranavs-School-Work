@@ -18,11 +18,11 @@ Token::Token(string str, bool testsExists) : str(cutDown(str)) {
 
     } else if (this->str == "(") {
 
-        status = leftParenthesis;
+        status = lParren;
 
     } else if (this->str == ")") {
 
-        status = rightParenthesis;
+        status = rParren;
 
     } else if (this->str[0] == '[') {   
 
@@ -150,7 +150,7 @@ size_t Token::_whatKindOfTest(string str) {
         return string::npos;
     }
 
-    if ( !(str[0] == '[' && str[str.size() - 1] == ']') && toLower(str.substr(0, 4)) != "test")
+    if ( !(str[0] == '[' && str[str.size() - 1] == ']') && toLowercase(str.substr(0, 4)) != "test")
         return string::npos;
 
     if (str.find("-d") != string::npos) {
@@ -179,7 +179,7 @@ void Token::_pruneTest() {
 
     } else {
 
-        assert(toLower(str.substr(0, 4)) == "test");
+        assert(toLowercase(str.substr(0, 4)) == "test");
 
         str.erase(0, 4);
     }

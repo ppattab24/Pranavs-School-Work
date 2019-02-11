@@ -1,4 +1,4 @@
-#include "genuse.h"
+#include "../header/genuse.h"
 
 char* str_to_char(const string& stringCommand)
 {
@@ -29,7 +29,7 @@ string toLowercase (string input)
 {
 	for (size_t i = 0; i < input.size(); i++) 
 	{
-		input[i] = toLower(input[i]);
+		input[i] = toLowercase(input[i]);
 	}
 	return input;
 }
@@ -68,23 +68,23 @@ void eraseBothSides(string& stringToCutDown, size_t amountOfChars) {
     stringToCutDown.erase(stringToCutDown.size() - amountOfChars, string::npos);
 }
 
-void clearQueue(queue<Token>& queue) {
-    while(!queue.empty())
-        queue.pop();
+void clearAll(queue<Token>& queue) {
+        while(!queue.empty())
+	        queue.pop();
 }
 
-void populateQueue(queue<Token>& queueAddItems, queue<Token> original) {
+void addItems(queue<Token>& queueAddItems, queue<Token> original) {
 
-    clearQueue(queueAddItems);
+	clearAll(queueAddItems);
 
-    while(!original.empty()) {
+	while(!original.empty()) {
+		Token& t = original.front();
+		queueAddItems.push(t);
+		original.pop();
 
-        Token& t = original.front();
-        queueAddItems.push(t);
-        original.pop();
-
-    }
+						    }
 }
+
 
 string padDelim(string str, char delim)
 {
@@ -112,4 +112,39 @@ string padDelim(string str, char delim)
     }
 
     return str;
+}
+
+bool equals(const char * cStr, string str, bool capsSensitive)
+{
+	string compareMeString;
+        const char * compareMeCStr;
+	bool shouldDelete;
+
+	if (capsSensitive)
+	{
+		compareMeString = str;
+		compareMeCStr = reinterpret_cast<char *>(*cStr);
+		shouldDelete = false;
+	}
+       	else
+	{
+		compareMeCStr = str_to_char(toLowercase(cStr));
+		compareMeString = toLowercase(str);
+		shouldDelete = true;
+	}
+
+	for (size_t i = 0; i < compareMeString.size(); i++)
+	{
+		if (compareMeString[i] != compareMeCStr[i])
+		{
+			if (shouldDelete)
+				delete [] compareMeCStr;
+			return false;
+
+		}
+	}
+
+	if (shouldDelete)
+		delete[] compareMeCStr;
+	return true;
 }
