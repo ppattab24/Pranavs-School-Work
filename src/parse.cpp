@@ -160,7 +160,7 @@ void Parse::reinitializeStates()
         {
             if(currToken.toString().substr(0, 2) == "-d")
             {
-                currToken.setStatus(Token::testD);
+                currToken.setStatus(Token::test1);
 
                 string currToken_string = currToken.toString();
                 currToken_string.erase(0, 3);
@@ -168,7 +168,7 @@ void Parse::reinitializeStates()
             }
             else if(currToken.toString().substr(0, 2) == "-f")
             {
-                currToken.setStatus(Token::testF);
+                currToken.setStatus(Token::test3);
 
                 string currToken_string = currToken.toString();
                 currToken_string.erase(0, 3);
@@ -185,8 +185,8 @@ bool Delim::_isGoodComand(Token t) {
 
     size_t currentTokenStatus = t.getStatus();
 
-    return thisStatus == Token::leftParenthesis
-            || thisStatus == Token::rightParenthesis
+    return thisStatus == Token::lParren 
+            || thisStatus == Token::rParren
             || thisStatus == Token::connector
             || thisStatus == Token::error;
 }

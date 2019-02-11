@@ -11,8 +11,12 @@ class token;
 
 using namespace std;
 
-char* str_to_char(const string& );
+char* str_to_char(const string&);
 
-char toLowercase(char );
+char toLowercase(char);
 
-string toLowercase (string );
+string toLowercase (string);
+
+string cutDown(const string&);
+
+void eraseBothSides(string&, size_t);
