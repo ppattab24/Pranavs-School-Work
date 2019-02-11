@@ -1,24 +1,27 @@
-#ifndef SHUNTINGYARD_H
-#define SHUNTINGYARD_H
+#ifndef SHUNTING_YARD_H
+#define SHUNTING_YARD_H
 
-#include "genuse.h"
+
+#include <iostream>
+#include <stack>
+#include <queue>
+#include <cstring>
+#include <cassert>
+
+#include "util.h"
 
 using namespace std;
 
-class ShuntingYard {
-private:
-queue<Token> delivery;
-queue<Token> command_token_queue;
-
-stack<Token> opStack;
-
+class shuntingYard
+{
 public:
-void run();
-ShuntingYard(queue<Token> commandQ );
-queue<Token> getReversie();
-
-
+    shuntingYard(queue<Token> command);
+    void run();
+    queue<Token> getReversePolish();
+private:
+    queue<Token> delivery, command_queue;
+    stack<Token> operator_stack;
 };
 
 
-#endif 
+#endif //SHUNTING_YARD_H
