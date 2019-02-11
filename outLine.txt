@@ -3,7 +3,7 @@ Begin parsing command entered
   First check for # when iterating through the input to determine how much is valid.
   Then check for quotations and group together characters based on how many are between them
   Finally look for the connectors and then combine the commands based on them
-At his point we should have a queue<token> of broken-up command(s)
+At this point we should have a queue<token> of broken-up command(s)
   While the queue is not empty "run" each command set in the queue.
   After each command has been run, pop() on the que.
 Program should be done when this queue is empty.
