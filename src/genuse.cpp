@@ -1,97 +1,110 @@
 #include "../header/genuse.h"
 
-char* str_to_char(const string& stringCommand)
-{
-	char* cstr = new char[stringCommand.size() + 1];//+1 to null-terminate
+char* str_to_char(const string& str) {
 
-	for (size_t i = 0; i < stringCommand.size(); i++) 
-	{
-		cstr[i] = stringCommand[i];
-	}
+    char* c = new char[str.size() + 1];//+1 to null-terminate
 
-	cstr[stringCommand.size()] = '\0';
-	return cstr;
+    for (size_t i = 0; i < str.size(); i++) {
+
+        c[i] = str[i];
+    }
+
+    c[str.size()] = '\0';
+
+    return c;
 }
 
-char toLowercase(char cstring )
-{
-	if ('A' <= cstring && cstring <= 'Z')        
-	{
-		return cstring - 'A' + 'a';
-	}
-	else 
-	{
-		return cstring;
-	}
-}
+string cutDown(const string& trimMe) {
 
-string toLowercase (string input)
-{
-	for (size_t i = 0; i < input.size(); i++) 
-	{
-		input[i] = toLowercase(input[i]);
-	}
-	return input;
-}
+    if(trimMe == "")  //needed for when dummy Tokens are created (with empty string) during postfix evaluation
+        return trimMe;
 
-string cutDown(const string& token_to_cutDown) {
+    string whitespace = " \n\t";
+    string newStr;
 
-    if(token_to_cutDown == "")  
-        return token_to_cutDown;
+    //Find positions to cutDown
+    size_t left = trimMe.find_first_not_of(whitespace);
+    size_t right = trimMe.find_last_not_of(whitespace);
 
-    string whiteSpace = " \n\t";
-    string newString;
-
-    size_t left = token_to_cutDown.find_first_not_of(whiteSpace);
-    size_t right = token_to_cutDown.find_last_not_of(whiteSpace);
-
+    //If all whitespace, cutDown all
     if (left == UINT_MAX || right == UINT_MAX) {
 
-        newString = "";
+        newStr = "";
 
     } else {
 
-        newString = token_to_cutDown.substr(left, right - left + 1);
+        newStr = trimMe.substr(left, right - left + 1);
     }
 
-    return newString;
+    return newStr;
 }
 
-void eraseBothSides(string& stringToCutDown, size_t amountOfChars) {
+bool equals(const char * cStr, string str, bool capsSensitive)
+{
+    string compareMeString;
+    const char * compareMeCStr;
+    bool shouldDelete;
 
-    assert(stringToCutDown.size() >= (amountOfChars * 2));
+    if (capsSensitive)
+    {
+        compareMeString = str;
+        compareMeCStr = reinterpret_cast<char *>(*cStr);
+        shouldDelete = false;
+    } else
+    {
 
-    if (amountOfChars == 0)
-        return;
+        compareMeCStr = str_to_char(toLowercase(cStr));
+        compareMeString = toLowercase(str);
+        shouldDelete = true;
+    }
 
-    stringToCutDown.erase(0, amountOfChars);
-    stringToCutDown.erase(stringToCutDown.size() - amountOfChars, string::npos);
+    for (size_t i = 0; i < compareMeString.size(); i++)
+    {
+        if (compareMeString[i] != compareMeCStr[i])
+        {
+
+            if (shouldDelete)
+                delete [] compareMeCStr;
+
+            return false;
+
+        }
+    }
+
+    if (shouldDelete)
+        delete[] compareMeCStr;
+
+    return true;
 }
 
-void clearAll(queue<Token>& queue) {
-        while(!queue.empty())
-	        queue.pop();
+char toLowercase(char c)
+{
+    if ('A' <= c && c <= 'Z') {
+
+        return c - 'A' + 'a';
+    } else {
+
+        return c;
+    }
 }
 
-void addItems(queue<Token>& queueAddItems, queue<Token> original) {
+string toLowercase(string str)
+{
 
-	clearAll(queueAddItems);
+    for (size_t i = 0; i < str.size(); i++) {
 
-	while(!original.empty()) {
-		Token& t = original.front();
-		queueAddItems.push(t);
-		original.pop();
+        str[i] = toLowercase(str[i]);
+    }
 
-						    }
+    return str;
 }
 
-
-string padDelim(string str, char delim)
+string padParse(string str, char parser)
 {
     for (size_t i = 0; i < str.size(); i++) {
 
-        //Pad left of delim, if necessary
-        if (str[i] == delim
+        //Pad left of parser, if necessary
+        if (str[i] == parser
             && (i == 0 || str[i - 1] != ' ')) {//safe from i=0 by short-circuit evaluation
 
             string delimStr(1, ' ');
@@ -100,8 +113,8 @@ string padDelim(string str, char delim)
             i++;    //Keep up the loop with the insertion
         }
 
-        //Pad right of delim, if necessary
-        if (str[i] == delim
+        //Pad right of parser, if necessary
+        if (str[i] == parser
             && (i == str.size() - 1 || str[i + 1] != ' ')) {
 
             string delimStr(1, ' ');
@@ -114,37 +127,62 @@ string padDelim(string str, char delim)
     return str;
 }
 
-bool equals(const char * cStr, string str, bool capsSensitive)
+bool parenthesisChecker(queue<Token> checkMe)
 {
-	string compareMeString;
-        const char * compareMeCStr;
-	bool shouldDelete;
+    stack<char> s;
 
-	if (capsSensitive)
-	{
-		compareMeString = str;
-		compareMeCStr = reinterpret_cast<char *>(*cStr);
-		shouldDelete = false;
-	}
-       	else
-	{
-		compareMeCStr = str_to_char(toLowercase(cStr));
-		compareMeString = toLowercase(str);
-		shouldDelete = true;
-	}
+    while(!checkMe.empty())
+    {
+        if(checkMe.front().getStatus() == Token::lParren)
+        {
+            s.push('(');
+            checkMe.pop();
+        }
+        else if(checkMe.front().getStatus() == Token::rParren)
+        {
+            if(s.empty() || s.top() != '(')
+                return false;
+            s.pop();
+            checkMe.pop();
+        }
+        else
+            checkMe.pop();
+    }
 
-	for (size_t i = 0; i < compareMeString.size(); i++)
-	{
-		if (compareMeString[i] != compareMeCStr[i])
-		{
-			if (shouldDelete)
-				delete [] compareMeCStr;
-			return false;
+    return s.empty();
+}
 
-		}
-	}
+bool myXOR(bool val1, bool val2) {
 
-	if (shouldDelete)
-		delete[] compareMeCStr;
-	return true;
+    return val1 != val2;
+}
+
+void eraseBothSides(string& trimMe, size_t thisManyChars) {
+
+    //Make sure there are enough characters in trimMe to erase
+    assert(trimMe.size() >= (thisManyChars * 2));
+
+    if (thisManyChars == 0)
+        return;
+
+    trimMe.erase(0, thisManyChars);
+    trimMe.erase(trimMe.size() - thisManyChars, string::npos);
+}
+
+void clearAll(queue<Token>& queue_to_clear) {
+    while(!queue_to_clear.empty())
+        queue_to_clear.pop();
+}
+
+void addItems(queue<Token>& queue_to_AddTo, queue<Token> original) {
+
+    clearAll(queue_to_AddTo);
+
+    while(!original.empty()) {
+
+        Token& t = original.front();
+        queue_to_AddTo.push(t);
+        original.pop();
+
+    }
 }
