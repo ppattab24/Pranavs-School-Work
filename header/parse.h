@@ -7,7 +7,7 @@
 #include <cassert>
 
 #include "token.h"
-#include "util.h"
+#include "genuse.h"
 
 using namespace std;
 
@@ -29,7 +29,7 @@ class Parse
 		    void _initialize(char* cstring, char delimiter, bool quotesSeparate, bool worryAboutTests);
 		    bool _Quotes (string str);
 		    bool _Quotes (char* c);
-		    bool _isGoodCommand(Token t);
+		    bool _isGoodCommand(Token);
 
 		    queue<Token> q;
 };

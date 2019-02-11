@@ -1,4 +1,4 @@
-#include "../src/parse.h"
+#include "../header/parse.h"
 
 Parse::Parse() 
 {
@@ -17,7 +17,7 @@ Parse::Parse(string str, char delimiter, bool quotesSeparate, bool Tests)
 
 	char* cstring = str_to_char(str);
 	_initialize(cstring, delimiter, quotesSeparate, Tests);
-	delete [] c;
+	delete [] cstring;
 }
 
 bool Parse::done() const { return q.empty(); }
@@ -32,7 +32,7 @@ void Parse::compressContents()
 	{
 		vector<Token> combinationVector;
 		Token firstToken = q.front();
-	        combinedVector.push_back(firstToken);
+	        combinationVector.push_back(firstToken);
 		q.pop();
 
 		if(!_isGoodCommand(firstToken)) 
@@ -40,12 +40,15 @@ void Parse::compressContents()
 			while(!q.empty() && (!_isGoodCommand(q.front()) || firstToken.toString().at(0) == '\"')) 
 			{
 				Token addToken = q.front();
-				combinedVector.push_back(addToken);
+				combinationVector.push_back(addToken);
 				q.pop();
 
 				if(firstToken.toString().at(0) == '\"' && addToken.toString().at(addToken.toString().size() - 1) == '\"') break;
 			}
 		}
+
+		Token combinedToken(combinationVector);
+
 		if(combinedToken.isTest())
 			combinedToken._pruneTest();
 		replacementQueue.push(combinedToken);	
@@ -66,7 +69,7 @@ ostream& operator <<(ostream& outs, const Parse& d)
 {
 	queue<Token> qCopy(d.q);
 	outs << "{ ";
-	while(!qCopy.pop.empty())
+	while(!qCopy.empty())
 	{
 		outs << "(" << qCopy.front() << ") ";
 		qCopy.pop();
@@ -76,7 +79,7 @@ ostream& operator <<(ostream& outs, const Parse& d)
 	return outs;
 }
 
-void Parse::_initialize(char *cstring, char delim, bool quotesSeparately, bool Tests) {
+void Parse::_initialize(char *cstring, char delim, bool separateQuotes, bool Tests) {
 
     if (cstring == NULL)
         return;
@@ -181,12 +184,12 @@ void Parse::reinitializeStates()
     }
 }
 
-bool Delim::_isGoodComand(Token t) {
+bool Parse::_isGoodCommand(Token t) {
 
     size_t currentTokenStatus = t.getStatus();
 
-    return thisStatus == Token::lParren 
-            || thisStatus == Token::rParren
-            || thisStatus == Token::connector
-            || thisStatus == Token::error;
+    return currentTokenStatus == Token::lParren 
+            || currentTokenStatus == Token::rParren
+            || currentTokenStatus == Token::connector
+            || currentTokenStatus == Token::error;
 }

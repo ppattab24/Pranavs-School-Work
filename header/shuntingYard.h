@@ -15,6 +15,7 @@ stack<token> operators;
 public:
 void run();
 ShuntingYard(queue<token> );
+queue<Token> getReversie();
 
 
 };

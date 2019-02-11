@@ -17,8 +17,10 @@ string str;
 size_t testKind(string str);
 
 public:
-Token(string, int);
-
+Token(); // don't use
+Token(string str, int status);
+Token(string str, bool Tests = false);
+Token(const vector<Token>& tokens_to_merge);
 enum Status{ good, bad, middle,
     connector,
     error,
@@ -26,7 +28,8 @@ enum Status{ good, bad, middle,
     lParren, rParren,
     test1, test2, test3};
     
-void setStatus(status);
+void setStatus(Status);
+void setStatus(bool);
 int getStatus();
 string toString();
 void setString(string );
@@ -49,4 +52,4 @@ bool isTest() const;
 
 
 
-#endif;
+#endif

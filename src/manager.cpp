@@ -33,10 +33,10 @@ void Manager::run()
 
 		// Parenthesis check here
 
-		ShuntingYard output(delimited-token_queue);
-		queue<Token> parsedQueue = output.getReversePolish();
+		ShuntingYard output(delimited_token_queue);
+		queue<Token> parsedQueue = output.getReversie();
 		evalPostFix(parsedQueue);
-		clearQueue(delimited_token_queue);
+		clearAll(delimited_token_queue);
 		cout << endl;
 	}
 }
@@ -66,27 +66,29 @@ void Manager::execute(char** command) {
 	}
 	
 	if ((process_id = fork()) < 0) {
-		exit(1)
+		exit(1);
 	}
 	else if (process_id == 0) {
 		if (execvp(*command, command) < 0) {
 			cerr<< "Command did not execute:failed" << endl;
-			worked = false;
+			successful = false;
 		}
 		else {
-			worked = true;	
+			successful = true;	
 		}
 	}
 	else {
-		worked = true;
-		while (wait(&status) != process_id);
+		successful = true;
+		while (wait(&status) != process_id)
+		{
 		
-		if (WEXITSTATUS(status)) {
-			worked = false;
+			if (WEXITSTATUS(status)) {
+				successful = false;
+			}
 		}
+	
+	
 	}
-	
-	
 }
 
 void Manager::parse(char *line, char **command)

@@ -20,3 +20,14 @@ string toLowercase (string);
 string cutDown(const string&);
 
 void eraseBothSides(string&, size_t);
+
+void clearAll(queue<Token>& queue);
+
+void addItems(queue<Token>& queueAddItems, queue<Token> original);
+
+bool equals(const char *, string, bool);
+
+string padDelim(string, char);
+
+// We do not need the parenthesisChecker right now
+// testChecker and myXOR are unneccessary
