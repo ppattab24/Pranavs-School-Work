@@ -47,7 +47,7 @@ void Manager::execute(string command_string) {
 	char* command[64];
 	memset(command, 0, sizeof(command));
 	
-	parse(command_string, command);
+	parse(cString, command);
 	
 	execute(command);
 	
