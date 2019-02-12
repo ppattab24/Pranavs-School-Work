@@ -7,7 +7,7 @@
 #include <cassert>
 
 #include "token.h"
-#include "util.h"
+#include "genuse.h"
 
 using namespace std;
 

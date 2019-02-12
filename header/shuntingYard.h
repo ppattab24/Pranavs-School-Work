@@ -8,7 +8,7 @@
 #include <cstring>
 #include <cassert>
 
-#include "util.h"
+#include "genuse.h"
 
 using namespace std;
 

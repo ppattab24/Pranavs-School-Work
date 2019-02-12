@@ -19,7 +19,7 @@
 
 #include "token.h"
 #include "parse.h"
-#include "util.h"
+#include "genuse.h"
 #include "shuntingYard.h"
 
 using namespace std;

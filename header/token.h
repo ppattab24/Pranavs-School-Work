@@ -7,7 +7,7 @@
 #include <cassert>
 #include <queue>
 
-#include "util.h"
+#include "genuse.h"
 
 using namespace std;
 
@@ -80,5 +80,3 @@ private:
 
 #endif // TOKEN_H
 
-
-#endif
