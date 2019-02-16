@@ -6,16 +6,16 @@ void Manager::run() {
 
     while(true)
     {
-        memset(input, 0, sizeof(input));  //clears input for future input
+        memset(input, 0, sizeof(input));  
 
         cout << "$ ";
         cin.getline(input, 1024);
-        input[cin.gcount()] = '\0';  //null-terminated
+        input[cin.gcount()] = '\0';  
         cout << endl;
 
         Token currLine;
         queue<Token> delimited_queue, main_token_queue;
-        Parse d(input, ';', false, false);  //Constructor delimits input
+        Parse d(input, ';', false, false);  
 
         while(!d.done())
         {
@@ -33,7 +33,6 @@ void Manager::run() {
                 delimited_queue.push(currToken);
             }
 
-            //main_token_queue = combineCommands(delimited_queue);
 
             if(!parenthesisChecker(delimited_queue))
             {
@@ -58,9 +57,28 @@ void Manager::execute(string commandStr) {
     char * cmd[64];
     memset(cmd, 0, sizeof(cmd));
 
-    parse(cStr, cmd);
+    //parse(cStr, cmd);
+    
+    while (*cStr != '\0')  
+    {
 
-     pid_t process_id;
+        //Replace whitespace with \0
+        while (*cStr == ' ' || *cStr == '\t' || *cStr == '\n')
+        {
+            *cStr = '\0';
+            cStr++;
+        }
+
+        *cmd = cStr;
+        cmd++;
+        
+        while (*cStr != '\0' && *cStr != ' ' && *cStr != '\t' && *cStr != '\n')
+        {
+            cStr++;
+        }
+    }
+
+    pid_t process_id;
     int status;
 
     if (equals(*cmd, "exit", false)){
@@ -69,11 +87,11 @@ void Manager::execute(string commandStr) {
     }
 
     
-    if((process_id = fork()) < 0)   // if something went wrong with forking the process
+    if((process_id = fork()) < 0)   
     {
         exit(1);
     }
-    else if (process_id == 0)       // if child process was created
+    else if (process_id == 0)     
     {
 
         if(execvp(*cmd, cmd) < 0)
@@ -106,9 +124,9 @@ void Manager::execute(string commandStr) {
  * @param input Beginning of cstring containing all args
  * @param command array of cstrings which this function will populate
 **/
-void Manager::parse(char *input, char **command)
+/*void Manager::parse(char *input, char **command)
 {
-    while (*input != '\0')  //While you're not at the end of the cstring
+    while (*input != '\0')  
     {
 
         //Replace whitespace with \0
@@ -118,18 +136,16 @@ void Manager::parse(char *input, char **command)
             input++;
         }
 
-        //Save input to its place in command, and move command walker forwward
         *command = input;
         command++;
-
-        //Advance input to the next non-whitespace character
+        
         while (*input != '\0' && *input != ' ' && *input != '\t' && *input != '\n')
         {
             input++;
         }
     }
 }
-
+*/
 /**
  * @brief Evaluates the queue (already in postfix notation)
  * @param string_postfix_queue a queue that contains an expression in postfix notation
@@ -146,9 +162,8 @@ void Manager::evalPostFix(queue<Token>& token_postfix_queue)
             token_eval_stack.push(token_postfix_queue.front());
             token_postfix_queue.pop();
         }
-        else //if token is an operator
+        else 
         {
-            //Prepare the binary expression
 
             Token op2 = token_eval_stack.top();
             token_eval_stack.pop();
@@ -159,16 +174,14 @@ void Manager::evalPostFix(queue<Token>& token_postfix_queue)
             Token op1 = token_eval_stack.top();
             token_eval_stack.pop();
 
-            // [command] [connector] [command]
             vectorToEval.push_back(op1);
             vectorToEval.push_back(connector);
             vectorToEval.push_back(op2);
 
-            //Evaluate the binary expression!
-            evaluate(vectorToEval); //updates wasSuccess
-            vectorToEval.clear();   //clears vector for next bin expression
+            evaluate(vectorToEval); 
+            vectorToEval.clear();   
 
-            //Push result onto the stack
+            
             if (wasSuccess) {
                 Token t("", Token::good);
                 token_eval_stack.push(t);
@@ -339,16 +352,16 @@ bool Manager::isThisADirectory(string pathname)
     if ( access(pathname.c_str(),0) == 0 )
     {
         if (sb.st_mode & S_IFDIR) {
-            wasSuccess = true;  //directory exists
+            wasSuccess = true;  
             return true;
         }
         else {
-            wasSuccess = false; //directory is not found
+            wasSuccess = false; 
             return false;
         }
     }
 
-    wasSuccess = false; //path is not found
+    wasSuccess = false; 
     return false;
 }
 
@@ -361,16 +374,16 @@ bool Manager::isThisAFile(string pathname)
     if ( access(pathname.c_str(),0) == 0 )
     {
         if (sb.st_mode & S_IFREG) {
-            wasSuccess = true;  //file exists
+            wasSuccess = true;  
             return true;
         }
         else {
-            wasSuccess = false; //file is not found
+            wasSuccess = false;
             return false;
         }
     }
 
-    wasSuccess = false; //path is not found
+    wasSuccess = false; 
     return false;
 }
 
