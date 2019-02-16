@@ -124,15 +124,16 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 
     while(!token_postfix_queue.empty())
     {
-	int counter = 0;
-    	queue<Token> temp = token_postfix_queue;
+//	int counter = 0;
+  //  	queue<Token> temp = token_postfix_queue;
 	    
-	while (!temp.empry()) { // checking for multiple connectors
-	    if (temp.front().getStatus() == Token::connector) {
-		    ++count;
+/*	while (!temp.empty()) { // checking for multiple connectors
+	    //if (temp.front().getStatus() == Token::connector) {
+//	cout << temp.front().toString() << endl;
 		    temp.pop();
-	    }
+	    //]
 	}
+	*/
 	    
         if (token_postfix_queue.front().getStatus() != Token::connector)
         {
@@ -160,10 +161,14 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
             vectorToEval.clear();   
 
             
-            if (wasSuccess) {
+            if (wasSuccess) 
+	    {
                 Token t("", Token::good);
                 token_eval_stack.push(t);
-            } else {
+            } 
+	    
+	    else 
+	    {
                 Token t("", Token::bad);
                 token_eval_stack.push(t);
             }
@@ -214,15 +219,18 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 void Manager::evaluate(vector<Token> bin)
 {
     ifstream path(bin[0].toString().c_str());
-
+    //cout << bin[0].toString() << ": ";
+    //cout << bin[0].getStatus() << endl << endl;
     switch (bin[0].getStatus())
     {
         case Token::middle:
-
+	    //cout << "Executing Test." << endl;
             execute(bin[0].toString());
 
             break;
 
+	case Token::good:
+	    break;
         case Token::test2:
 
             wasSuccess = path.good();
@@ -247,9 +255,14 @@ void Manager::evaluate(vector<Token> bin)
             if (wasSuccess) {cout << "(True)" << endl;}
             else {cout << "(False)" << endl;}
             break;
-
+	
+	case Token::connector:
+	    //cout << "This is the connector case in evalate" << endl << endl; 
+	    wasSuccess = false;
+	    break;
+	    
         default:
-            cerr << "This is our error: ERROR: Incorrect token type: " << bin[0].getStatus() << endl;
+            cerr << "This is our error: ERROR: Token type: " << bin[0].getStatus() << endl;
             exit(7);
 
     }
