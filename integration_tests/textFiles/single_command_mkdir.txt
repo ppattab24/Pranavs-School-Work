@@ -1,0 +1,4 @@
+echo "running second int. test - mkdir test"
+mkdir test;
+ls
+exit;

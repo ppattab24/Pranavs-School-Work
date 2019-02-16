@@ -119,12 +119,29 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
     stack<Token> token_eval_stack;
     vector<Token> vectorToEval;
 
+    queue<Token> temp = token_postfix_queue;
+    while(!temp.empty())
+    {
+	    cout << temp.front().toString() << endl;
+	    temp.pop();
+    }
+    cout << endl;
+
     while(!token_postfix_queue.empty())
     {
         if (token_postfix_queue.front().getStatus() != Token::connector)
         {
             token_eval_stack.push(token_postfix_queue.front());
             token_postfix_queue.pop();
+
+	     temp = token_postfix_queue;
+    while(!temp.empty())
+    {
+	    cout << temp.front().toString() << endl;
+	    temp.pop();
+    }
+    cout << endl;
+
         }
         else 
         {
@@ -199,7 +216,6 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 
 void Manager::evaluate(vector<Token> bin)
 {
-    //assert(bin.size() == 3); 
     ifstream path(bin[0].toString().c_str());
 
     switch (bin[0].getStatus())
@@ -236,7 +252,7 @@ void Manager::evaluate(vector<Token> bin)
             break;
 
         default:
-            cerr << "ERROR: Incorrect token type: " << bin[0].getStatus() << endl;
+            cerr << "This is our error: ERROR: Incorrect token type: " << bin[0].getStatus() << endl;
             exit(7);
 
     }

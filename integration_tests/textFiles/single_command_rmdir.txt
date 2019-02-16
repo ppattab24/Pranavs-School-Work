@@ -1,0 +1,1 @@
+echo "removing test directory"; rm -rf test; ls; exit;

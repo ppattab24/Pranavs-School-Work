@@ -1,0 +1,3 @@
+echo "running first integration test - ls"
+ls
+exit

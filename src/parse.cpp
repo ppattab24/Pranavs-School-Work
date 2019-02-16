@@ -104,13 +104,11 @@ void Parse::_init(char *cstring, char parser, bool quotesSeparately, bool Tests)
     char* walker = cstring;
     bool weCareAboutQuotes = quotesSeparately && _Quotes(cstring);
 
-    //Walk through the cstring
     while(*walker != '\0') {
 
         string currentStr = "";
         bool inQuoteFlag = false, commentFound = false;
 
-        //Don't delimit if we're in a quotations!
         while (*walker != '\0' && ( (*walker != parser) || (inQuoteFlag && weCareAboutQuotes)) ) {
 
             char currentChar = *walker;

@@ -68,8 +68,6 @@ Token::Token(const vector<Token>& tokens_to_combine) {
 
 void Token::setStatus(bool wasSuccessful) {
 
-    //assert(status == middle || this->isTest());  
-
     if (wasSuccessful) {this->status = good;} 
     
     else {this->status = bad;}
