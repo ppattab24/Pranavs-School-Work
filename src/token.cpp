@@ -17,14 +17,6 @@ Token::Token(string str, bool Tests) : str(cutDown(str)) {
 
         status = connector;
 
-    } else if (this->str == "(") {
-
-        status = lParren;
-
-    } else if (this->str == ")") {
-
-        status = rParren;
-
     } else if (this->str[0] == '[') { 
 
         status = test2;
