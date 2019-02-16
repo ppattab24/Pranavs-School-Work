@@ -118,29 +118,26 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 {
     stack<Token> token_eval_stack;
     vector<Token> vectorToEval;
-
-    queue<Token> temp = token_postfix_queue;
-    while(!temp.empty())
-    {
-	    cout << temp.front().toString() << endl;
-	    temp.pop();
-    }
-    cout << endl;
+	
+	
+    
 
     while(!token_postfix_queue.empty())
     {
+	int counter = 0;
+    	queue<Token> temp = token_postfix_queue;
+	    
+	while (!temp.empry()) { // checking for multiple connectors
+	    if (temp.front().getStatus() == Token::connector) {
+		    ++count;
+		    temp.pop();
+	    }
+	}
+	    
         if (token_postfix_queue.front().getStatus() != Token::connector)
         {
             token_eval_stack.push(token_postfix_queue.front());
             token_postfix_queue.pop();
-
-	     temp = token_postfix_queue;
-    while(!temp.empty())
-    {
-	    cout << temp.front().toString() << endl;
-	    temp.pop();
-    }
-    cout << endl;
 
         }
         else 
