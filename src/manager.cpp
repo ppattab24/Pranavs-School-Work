@@ -52,12 +52,18 @@ void Manager::run() {
     }
 }
 
-void Manager::execute(char **command)
-{
-    pid_t process_id;
+void Manager::execute(string commandStr) {
+
+    char * cStr = str_to_char(commandStr);
+    char * cmd[64];
+    memset(cmd, 0, sizeof(cmd));
+
+    parse(cStr, cmd);
+
+     pid_t process_id;
     int status;
 
-    if (equals(*command, "exit", false)){
+    if (equals(*cmd, "exit", false)){
 
         //cerr << "Exiting!!" << endl;
         exit(0);
@@ -74,7 +80,7 @@ void Manager::execute(char **command)
     {
         //cerr << "In second block in execute()" << endl;
 
-        if(execvp(*command, command) < 0)
+        if(execvp(*cmd, cmd) < 0)
         {
             cerr << "ERROR: command failed to execute()" << endl;
             wasSuccess = false;
@@ -94,17 +100,7 @@ void Manager::execute(char **command)
         if(WEXITSTATUS(status)) //if it wasn't successful
             wasSuccess = false;
     }
-}
 
-void Manager::execute(string commandStr) {
-
-    char * cStr = str_to_char(commandStr);
-    char * cmd[64];
-    memset(cmd, 0, sizeof(cmd));
-
-    parse(cStr, cmd);
-
-    execute(cmd);
 
     delete [] cStr;
 }
