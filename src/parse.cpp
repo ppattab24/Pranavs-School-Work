@@ -72,7 +72,7 @@ void Parse::compressTokens() {
 
 Parse& operator >>(Parse& parser, Token& t) {
 
-    assert(!parser.q.empty());
+    //assert(!parser.q.empty());
 
     t = parser.q.front();
     parser.q.pop();
@@ -99,8 +99,7 @@ ostream& operator <<(ostream& outs, const Parse& d) {
 
 void Parse::_init(char *cstring, char parser, bool quotesSeparately, bool Tests) {
 
-    if (cstring == NULL)
-        return;
+    if (cstring == NULL) {return;}
 
     char* walker = cstring;
     bool weCareAboutQuotes = quotesSeparately && _Quotes(cstring);
@@ -116,8 +115,7 @@ void Parse::_init(char *cstring, char parser, bool quotesSeparately, bool Tests)
 
             char currentChar = *walker;
 
-            if (currentChar == '\"')
-                inQuoteFlag = !inQuoteFlag; //toggle whether we're in or not
+            if (currentChar == '\"') {inQuoteFlag = !inQuoteFlag; }
 
             if (currentChar == '#' && !inQuoteFlag) {
                 commentFound = true;
@@ -132,19 +130,18 @@ void Parse::_init(char *cstring, char parser, bool quotesSeparately, bool Tests)
 
         if (!currentStr.empty())
         {
-            if ( (!q.empty()) && (q.back().isTest()) && (Tests) && (currentStr != "&&" && currentStr != "||") )
+            if ( (!q.empty()) && (q.back().isTest()) && (Tests) && (currentStr != "&&" && currentStr != "||") ) 
+            {
                 q.push(Token(currentStr, q.back().getStatus()));
-            else
-                q.push(Token(currentStr, Tests));
+            }
+            else {q.push(Token(currentStr, Tests));}
         }
 
 
 
-        if (commentFound)
-            return;
+        if (commentFound) {return;}
 
-        if (*walker != '\0')
-            walker++;
+        if (*walker != '\0') {walker++;}
     }
 
 }
@@ -161,8 +158,7 @@ bool Parse::_Quotes(string str) {
 
     for (size_t i = 0; i < str.size(); i++) {
 
-        if (str[i] == '\"')
-            totalQuotes++;
+        if (str[i] == '\"') {totalQuotes++;}
     }
 
     return totalQuotes % 2 == 0;
@@ -172,8 +168,7 @@ void Parse::checkFlagsAndReinitStatus()
 {
     queue<Token> replacementQueue;
 
-    if(q.front().toString().substr(0,1) == "[")
-        q.front().reduce();
+    if(q.front().toString().substr(0,1) == "[") {q.front().reduce();}
 
     while(!q.empty())
     {
@@ -203,10 +198,6 @@ void Parse::checkFlagsAndReinitStatus()
         q.pop();
     }
 
-
-    //Replace queue
-//    q.swap(replacementQueue);
-//    assert(replacementQueue.empty());
     addItems(q, replacementQueue);
     clearAll(replacementQueue);
 }
