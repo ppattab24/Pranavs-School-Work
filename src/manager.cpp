@@ -199,7 +199,7 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 
 void Manager::evaluate(vector<Token> bin)
 {
-    assert(bin.size() == 3); 
+    //assert(bin.size() == 3); 
     ifstream path(bin[0].toString().c_str());
 
     switch (bin[0].getStatus())
