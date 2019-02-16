@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
-project(rshell_the_werbenjagermanjensens)
+
+ADD_SUBDIRECTORY(googletest)
 
 set(CMAKE_CXX_STANDARD 11)
 
@@ -16,8 +17,8 @@ set(SOURCE_FILES
         src/token.cpp
         header/token.h)
 
-add_executable(test test.cpp)
+add_executable(mainTest unit_tests/test.cpp)
 add_executable(rshell ${SOURCE_FILES})
 
-TARGET_LINK_LIBRARIES(test gtest)
-TARGET_COMPILE_DEFINITIONS(test PRIVATE gtest_disable_pthreads=ON)
+TARGET_LINK_LIBRARIES(mainTest gtest)
+TARGET_COMPILE_DEFINITIONS(mainTest PRIVATE gtest_disable_pthreads=ON)
