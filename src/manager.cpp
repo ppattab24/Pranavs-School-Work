@@ -65,20 +65,16 @@ void Manager::execute(string commandStr) {
 
     if (equals(*cmd, "exit", false)){
 
-        //cerr << "Exiting!!" << endl;
         exit(0);
     }
 
-    //cerr << "Would be running execute() here!!" << endl;
+    
     if((process_id = fork()) < 0)   // if something went wrong with forking the process
     {
-        //cerr << "ERROR: child process forking failed" << endl;
-        //cerr << "In first block in execute()" << endl;
         exit(1);
     }
     else if (process_id == 0)       // if child process was created
     {
-        //cerr << "In second block in execute()" << endl;
 
         if(execvp(*cmd, cmd) < 0)
         {
@@ -87,13 +83,13 @@ void Manager::execute(string commandStr) {
         }
         else
         {
-            //cerr << "hey I ran, wasSuccess should be true" << endl;
+            
             wasSuccess = true;
         }
     }
     else
     {
-        //cerr << "In third block in execute()" << endl;
+        
         wasSuccess = true;
         while(wait(&status) != process_id);
 
