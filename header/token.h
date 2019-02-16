@@ -14,10 +14,10 @@ using namespace std;
 class Token
 {
 public:
-    Token(); //don't use this please, ill-defined Token
-    Token(string str, int status);//uncomment to manually set status
-    Token(string str, bool Tests = false); //infers status based on input
-    Token(const vector<Token>& combineUs); //status is taken from token at index 0
+    Token(); 
+    Token(string, int);
+    Token(string, bool Tests = false);
+    Token(const vector<Token>&); 
 
     enum Status { good, bad, middle,
         connector,
@@ -26,57 +26,37 @@ public:
         lParren, rParren,
         test1, test2, test3 };
 
-    void setStatus(bool wasSuccessful); //can only set a middle
-    void setStatus(Status s);
+    void setStatus(bool); 
+    void setStatus(Status);
 
     int getStatus() const;
 
     string toString() const;
 
-    void setString(string str);
+    void setString(string);
 
-    friend ostream& operator <<(ostream& outs, const Token& printMe);
+    friend ostream& operator <<(ostream&, const Token&);
 
-    friend bool operator ==(const Token& t, const string& str);
-    friend bool operator ==(const string& str, const Token& t);
+    friend bool operator ==(const Token&, const string&);
+    friend bool operator ==(const string&, const Token&);
 
-    friend bool operator !=(const Token& t, const string& str);
-    friend bool operator !=(const string& str, const Token& t);
+    friend bool operator !=(const Token&, const string&);
+    friend bool operator !=(const string&, const Token&);
 
-    Token& operator +=(const Token& t);
+    Token& operator +=(const Token&);
 
     bool isTest() const;
 
-    /**
-     * @brief _pruneTest Erases flags and either indicator of tests from str (i.e. "test" or [] brackets)
-     * Note that this requires that this token is of some Test type
-     */
-    void _pruneTest();
+    void reduce();
 
 private:
     int status;
 
-    /**
-     * @brief str String representation of the token.
-     * Using const deletes the implicit copy ctor for Token for some reason,
-     * so I can't make it const,
-     * but DO NOT change str after it is constructed!
-     * Make a new token instead.
-     * Tokens should be almost-immutable after construction,
-     * with the only exception being commands which must be updated after they are run.
-     */
-    /*const*/ string str;
+    string str;
 
-
-
-    /**
-     * @brief _whatKindOfTest Tests whether str is a test command, and if so what kind of test command.
-     * @param str String to be tested (should have "test" or [] brackets, may or may not have a flag)
-     * @return The enum of the kind of test it is, or string::npos if it is not a test
-     */
-    size_t _whatKindOfTest(string str);
+    size_t checkTest(string);
 };
 
 
-#endif // TOKEN_H
+#endif 
 

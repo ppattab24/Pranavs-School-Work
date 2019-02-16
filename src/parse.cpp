@@ -31,56 +31,43 @@ void Parse::compressTokens() {
 
     while(!q.empty()) {
 
-        //Prepare to append to current Token
-        vector<Token> aggregateVector;
-        Token initialToken = q.front();
-        aggregateVector.push_back(initialToken);
+        vector<Token> combinedVector;
+        Token firstToken = q.front();
+        combinedVector.push_back(firstToken);
         q.pop();
 
 
 
-        //Only consider appending if it's not blacklisted
-        if (!_isBlacklisted(initialToken)) {
+        if (!_isBlacklisted(firstToken)) {
 
 
             while (!q.empty()
 
-                   //              //Iterate through q for as long as the type matches initialToken
-                   //              //Or, iterate through q for as long as the quotations extends
-                   //              && (q.front().getStatus() == initialToken.getStatus() || initialToken.toString().at(0) == '\"')) {
+                   && (!_isBlacklisted(q.front()) || firstToken.toString().at(0) == '\"')) {
 
-                   //Iterate thorugh q for as long as we don't reach something that we should delimit
-                   //Or, iterate through q for as long as the quotations extends
-                   && (!_isBlacklisted(q.front()) || initialToken.toString().at(0) == '\"')) {
-
-                Token appendMe = q.front();
-                aggregateVector.push_back(appendMe);
+                Token token_to_combine = q.front();
+                combinedVector.push_back(token_to_combine);
                 q.pop();
 
-                //Exit the loop if we were in a quotations, and there's a \" at the end of this token to end the quotations
-                if (initialToken.toString().at(0) == '\"'
-                    && appendMe.toString().at(appendMe.toString().size() - 1) == '\"')
+                if (firstToken.toString().at(0) == '\"'
+                    && token_to_combine.toString().at(token_to_combine.toString().size() - 1) == '\"')
                     break;
             }
 
         }
 
-        //Make the combine token based on what you collected, and push it into replacementQueue
-        Token aggregateToken(aggregateVector);
+        Token combinedToken(combinedVector);
 
-        if(aggregateToken.isTest())
-            aggregateToken._pruneTest();
+        if(combinedToken.isTest())
+            combinedToken.reduce();
 
-        replacementQueue.push(aggregateToken);
+        replacementQueue.push(combinedToken);
     }
 
 
 
-    //Replace queue
     addItems(q, replacementQueue);
     clearAll(replacementQueue);
-//    q.swap(replacementQueue);
-//    assert(replacementQueue.empty());
 }
 
 Parse& operator >>(Parse& parser, Token& t) {
@@ -186,7 +173,7 @@ void Parse::checkFlagsAndReinitStatus()
     queue<Token> replacementQueue;
 
     if(q.front().toString().substr(0,1) == "[")
-        q.front()._pruneTest();
+        q.front().reduce();
 
     while(!q.empty())
     {

@@ -15,34 +15,28 @@ void Manager::run() {
 
         Token currLine;
         queue<Token> delimited_queue, main_token_queue;
-        Parse d(input, ';', false, false);  
+        Parse firstParse(input, ';', false, false);  
 
-        while(!d.done())
+        while(!firstParse.done())
         {
-            d >> currLine;
+            firstParse >> currLine;
 
-            Parse dd(currLine.toString(), ' ', true, true);
-            dd.compressTokens();
-            dd.checkFlagsAndReinitStatus();
+            Parse secondParse(currLine.toString(), ' ', true, true);
+            secondParse.compressTokens();
+            secondParse.checkFlagsAndReinitStatus();
 
-            while(!dd.done())
+            while(!secondParse.done())
             {
                 Token currToken;
-                dd >> currToken;
+                secondParse >> currToken;
 
                 delimited_queue.push(currToken);
             }
 
 
-            if(!parenthesisChecker(delimited_queue))
-            {
-                cerr << "ERROR: Uneven amount of parenthesis" << endl;
-                continue;
-            }
-
             shuntingYard sy(delimited_queue);
             queue<Token> evalQueue = sy.getReversePolish();
-            evalPostFix(evalQueue);
+            evalParsed(evalQueue);
 
             clearAll(delimited_queue);
 
@@ -57,26 +51,7 @@ void Manager::execute(string commandStr) {
     char * cmd[64];
     memset(cmd, 0, sizeof(cmd));
 
-    //parse(cStr, cmd);
-    
-    while (*cStr != '\0')  
-    {
-
-        //Replace whitespace with \0
-        while (*cStr == ' ' || *cStr == '\t' || *cStr == '\n')
-        {
-            *cStr = '\0';
-            cStr++;
-        }
-
-        *cmd = cStr;
-        cmd++;
-        
-        while (*cStr != '\0' && *cStr != ' ' && *cStr != '\t' && *cStr != '\n')
-        {
-            cStr++;
-        }
-    }
+    parse(cStr, cmd);
 
     pid_t process_id;
     int status;
@@ -111,25 +86,18 @@ void Manager::execute(string commandStr) {
         wasSuccess = true;
         while(wait(&status) != process_id);
 
-        if(WEXITSTATUS(status)) //if it wasn't successful
-            wasSuccess = false;
+        if(WEXITSTATUS(status)) {wasSuccess = false;}
     }
 
 
     delete [] cStr;
 }
 
-/** parse
- * @brief Populates command (an array of cstrings) with cstrings delimited by whitespace
- * @param input Beginning of cstring containing all args
- * @param command array of cstrings which this function will populate
-**/
-/*void Manager::parse(char *input, char **command)
+void Manager::parse(char *input, char **command)
 {
     while (*input != '\0')  
     {
 
-        //Replace whitespace with \0
         while (*input == ' ' || *input == '\t' || *input == '\n')
         {
             *input = '\0';
@@ -145,12 +113,8 @@ void Manager::execute(string commandStr) {
         }
     }
 }
-*/
-/**
- * @brief Evaluates the queue (already in postfix notation)
- * @param string_postfix_queue a queue that contains an expression in postfix notation
- */
-void Manager::evalPostFix(queue<Token>& token_postfix_queue)
+
+void Manager::evalParsed(queue<Token>& token_postfix_queue)
 {
     stack<Token> token_eval_stack;
     vector<Token> vectorToEval;
@@ -211,7 +175,7 @@ void Manager::evalPostFix(queue<Token>& token_postfix_queue)
                 break;
             case Token::test1:
 
-                if(isThisADirectory(token_eval_stack.top().toString()))
+                if(goodDirectory(token_eval_stack.top().toString()))
                     cout << "(True)" << endl;
                 else
                     cout << "(False)" << endl;
@@ -219,99 +183,81 @@ void Manager::evalPostFix(queue<Token>& token_postfix_queue)
                 break;
             case Token::test3:
 
-                if(isThisAFile(token_eval_stack.top().toString()))
+                if(goodFile(token_eval_stack.top().toString()))
                     cout << "(True)" << endl;
                 else
                     cout << "(False)" << endl;
 
                 break;
             default:
-                cerr << "ERROR: Incorrect token type to evaluate. Token is enum "
+                cerr << "ERROR: Incorrect token type: "
                      << token_eval_stack.top().getStatus() << endl;
                 exit(7);
         }
     }
 }
 
-/**
- * @brief Evaluates a binary expression according to rules for && and ||
- * @param binExpression - expression of the form A ** B
- *        (where A and B are individually executable commands,
- *        and where ** is connector && or ||)
- * NOTE: Modifies Manager::wasSuccess
- */
-void Manager::evaluate(vector<Token> binExpression)
+void Manager::evaluate(vector<Token> bin)
 {
-    assert(binExpression.size() == 3);  //first command, connector, last command
+    assert(bin.size() == 3); 
+    ifstream path(bin[0].toString().c_str());
 
-    ifstream path(binExpression[0].toString().c_str());
-
-    switch (binExpression[0].getStatus())
+    switch (bin[0].getStatus())
     {
         case Token::middle:
 
-            execute(binExpression[0].toString());
+            execute(bin[0].toString());
 
             break;
+
         case Token::test2:
 
             wasSuccess = path.good();
 
-            if (wasSuccess)
-                cout << "(True)" << endl;
-            else
-                cout << "(False)" << endl;
+            if (wasSuccess) {cout << "(True)" << endl;}
+            else {cout << "(False)" << endl;}
 
             break;
+
         case Token::test1:
 
-            wasSuccess = isThisADirectory(binExpression[0].toString());
+            wasSuccess = goodDirectory(bin[0].toString());
 
-            if (wasSuccess)
-                cout << "(True)" << endl;
-            else
-                cout << "(False)" << endl;
-
+            if (wasSuccess) {cout << "(True)" << endl;}
+            else {cout << "(False)" << endl;}
             break;
+
         case Token::test3:
 
-            wasSuccess = isThisAFile(binExpression[0].toString());
+            wasSuccess = goodFile(bin[0].toString());
 
-            if (wasSuccess)
-                cout << "(True)" << endl;
-            else
-                cout << "(False)" << endl;
-
+            if (wasSuccess) {cout << "(True)" << endl;}
+            else {cout << "(False)" << endl;}
             break;
+
         default:
-            cerr << "ERROR: Incorrect token type to evaluate. Token is enum "
-                 << binExpression[0].getStatus() << endl;
+            cerr << "ERROR: Incorrect token type: " << bin[0].getStatus() << endl;
             exit(7);
 
     }
 
     path.close();
 
-    binExpression[0].setStatus(wasSuccess);
+    bin[0].setStatus(wasSuccess);
 
-    if(shouldExecute(binExpression))
-        execute(binExpression[2].toString());
+    if(shouldExecute(bin))
+        execute(bin[2].toString());
 }
 
-/**
- * @brief Determines if connectors permit the execution of a command
- * @param vector of Tokens of either form "<cmd> ** <cmd>" or "** <cmd>" (where ** denotes a connector, && or ||)
- * NOTE: wasSuccess must be properly updated from the previous command!!!!!!!!!!!!!
-**/
-bool Manager::shouldExecute(vector<Token> expr)
+bool Manager::shouldExecute(vector<Token> expression)
 {
 
-    if ( (expr.size() != 1 && expr.size() != 3) ||
-         (expr[0].getStatus() != Token::middle && expr[2].getStatus() != Token::middle) )
+    if ( (expression.size() != 1 && expression.size() != 3) ||
+         (expression[0].getStatus() != Token::middle && expression[2].getStatus() != Token::middle) )
         return false;
 
-    return ( (expr[0].getStatus() == Token::good && expr[1].toString() == "&&")
-             || (expr[0].getStatus() == Token::bad && expr[1].toString() == "||") );
+    return ( (expression[0].getStatus() == Token::good && expression[1].toString() == "&&")
+             || (expression[0].getStatus() == Token::bad && expression[1].toString() == "||") );
 }
 
 queue<Token> Manager::combineCommands(queue<Token>& old_token_queue)
@@ -343,7 +289,7 @@ queue<Token> Manager::combineCommands(queue<Token>& old_token_queue)
     return new_token_queue;
 }
 
-bool Manager::isThisADirectory(string pathname)
+bool Manager::goodDirectory(string pathname)
 {
     struct stat sb;
 
@@ -365,7 +311,7 @@ bool Manager::isThisADirectory(string pathname)
     return false;
 }
 
-bool Manager::isThisAFile(string pathname)
+bool Manager::goodFile(string pathname)
 {
     struct stat sb;
 

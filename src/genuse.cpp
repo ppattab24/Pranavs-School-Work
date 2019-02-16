@@ -2,7 +2,7 @@
 
 char* str_to_char(const string& str) {
 
-	char* c = new char[str.size() + 1];//+1 to null-terminate
+	char* c = new char[str.size() + 1];
 
 	for (size_t i = 0; i < str.size(); i++) {
 

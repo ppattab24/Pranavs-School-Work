@@ -24,4 +24,4 @@ private:
 };
 
 
-#endif //SHUNTING_YARD_H
+#endif

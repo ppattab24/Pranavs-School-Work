@@ -16,4 +16,8 @@ set(SOURCE_FILES
         src/token.cpp
         header/token.h)
 
+add_executable(test test.cpp)
 add_executable(rshell ${SOURCE_FILES})
+
+TARGET_LINK_LIBRARIES(test gtest)
+TARGET_COMPILE_DEFINITIONS(test PRIVATE gtest_disable_pthreads=ON)

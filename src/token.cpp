@@ -6,12 +6,12 @@ Token::Token(string str, int status) : status(status), str(cutDown(str)) {}
 
 Token::Token(string str, bool Tests) : str(cutDown(str)) {
 
-    size_t testType = _whatKindOfTest(this->str);
+    size_t testType = checkTest(this->str);
 
     if (testType != string::npos && Tests) {
 
         status = testType;
-        //_pruneTest();
+
 
     } else if (this->str == "&&" || this->str == "||") {
 
@@ -25,7 +25,7 @@ Token::Token(string str, bool Tests) : str(cutDown(str)) {
 
         status = rParren;
 
-    } else if (this->str[0] == '[') {   //jankyyy
+    } else if (this->str[0] == '[') { 
 
         status = test2;
 
@@ -41,64 +41,48 @@ Token::Token(string str, bool Tests) : str(cutDown(str)) {
     }
 }
 
-Token::Token(const vector<Token>& combineUs) {
+Token::Token(const vector<Token>& tokens_to_combine) {
 
-    if (combineUs.empty()) {
+    if (tokens_to_combine.empty()) {
 
         str = "";
         status = error;
     } else {
 
-        //Set status explicitly
-        status = combineUs[0].getStatus();
+    
+        status = tokens_to_combine[0].getStatus();
 
-        //Combine strings, delimiting with ' '
-        string strAggregate = "";
 
-        for (size_t i = 0; i < combineUs.size(); i++) {
+        string combinedString = "";
 
-            Token currentToken = combineUs[i];  //changed from Token& to Token due to compile error
-            strAggregate += currentToken.toString();
-            strAggregate += ' ';
+        for (size_t i = 0; i < tokens_to_combine.size(); i++) {
+
+            Token currentToken = tokens_to_combine[i];
+            combinedString += currentToken.toString();
+            combinedString += ' ';
         }
 
-        str = strAggregate;
+        str = combinedString;
         str = cutDown(str);
     }
 }
 
 void Token::setStatus(bool wasSuccessful) {
 
-    assert(status == middle || this->isTest());   //could also be test command - added to assertion
+    assert(status == middle || this->isTest());  
 
-    if (wasSuccessful) {
-
-        this->status = good;
-    } else {
-
-        this->status = bad;
-    }
+    if (wasSuccessful) {this->status = good;} 
+    
+    else {this->status = bad;}
 }
 
-void Token::setStatus(Status s) {
+void Token::setStatus(Status s) {this->status = s;}
 
-    this->status = s;
+void Token::setString(string str) {this->str = str;}
 
-}
+int Token::getStatus() const {return status;}
 
-void Token::setString(string str) {
-
-    this->str = str;
-
-}
-
-int Token::getStatus() const {
-    return status;
-}
-
-string Token::toString() const {
-    return str;
-}
+string Token::toString() const {return str;}
 
 ostream& operator <<(ostream& outs, const Token& printMe)
 {
@@ -106,25 +90,13 @@ ostream& operator <<(ostream& outs, const Token& printMe)
     return outs;
 }
 
-bool operator ==(const Token& t, const string& str) {
+bool operator ==(const Token& t, const string& str) {return t.toString() == str;}
 
-    return t.toString() == str;
-}
+bool operator ==(const string& str, const Token& t) {return str == t.toString();}
 
-bool operator ==(const string& str, const Token& t) {
+bool operator !=(const Token& t, const string& str) {return t.toString() != str;}
 
-    return str == t.toString();
-}
-
-bool operator !=(const Token& t, const string& str) {
-
-    return t.toString() != str;
-}
-
-bool operator !=(const string& str, const Token& t) {
-
-    return str == t.toString();
-}
+bool operator !=(const string& str, const Token& t) {return str == t.toString();}
 
 Token &Token::operator+=(const Token &t) {
 
@@ -144,7 +116,7 @@ bool Token::isTest() const
            || (this->status == Token::test3);
 }
 
-size_t Token::_whatKindOfTest(string str) {
+size_t Token::checkTest(string str) {
 
     str = cutDown(str);
 
@@ -153,47 +125,25 @@ size_t Token::_whatKindOfTest(string str) {
         return string::npos;
     }
 
-    if ( !(str[0] == '[' && str[str.size() - 1] == ']') && toLowercase(str.substr(0, 4)) != "test")
-        return string::npos;
+    if ( !(str[0] == '[' && str[str.size() - 1] == ']') && toLowercase(str.substr(0, 4)) != "test") {return string::npos;}
 
-    //Now, we know it's a token - just figure out what kind of token it is
-    if (str.find("-d") != string::npos) {
 
-        return Token::test1;
-
-    } else if (str.find("-e") != string::npos) {
-
-        return Token::test2;
-
-    } else if (str.find("-f") != string::npos) {
-
-        return Token::test3;
-
-    } else {    //Default, if there is no flag included
-
-        return Token::test2;
-    }
+    if (str.find("-d") != string::npos) {return Token::test1;} 
+    else if (str.find("-e") != string::npos) {return Token::test2;} 
+    else if (str.find("-f") != string::npos) {return Token::test3;} 
+    else {return Token::test2;}
 }
 
-void Token::_pruneTest() {
+void Token::reduce() {
 
-    //assert(this->isTest());
 
-    //Get rid of [] brackets, or "test"
-    if (str[0] == '[' && str[str.size() - 1] == ']') {
-
-        eraseBothSides(str, 1);
-
-    } else {
-
+    if (str[0] == '[' && str[str.size() - 1] == ']') {eraseBothSides(str, 1);} 
+    else 
+    {
         assert(toLowercase(str.substr(0, 4)) == "test");
-
         str.erase(0, 4);
     }
 
-
-
-    //Get rid of flags, if there is any
     size_t foundIndex;
 
     switch (status) {
@@ -215,8 +165,6 @@ void Token::_pruneTest() {
         }
 
         default: {
-
-            //assert(status == Token::test2);
 
             foundIndex = str.find("-e");
 

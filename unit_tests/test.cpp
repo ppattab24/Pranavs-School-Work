@@ -1,0 +1,6 @@
+#include "../src/parse.cpp"
+#include "../src/main.cpp"
+#include "../src/manager.cpp"
+#include "../src/genuse.cpp"
+#include "../src/shuntingYard.cpp"
+#include "../src/token.cpp"
