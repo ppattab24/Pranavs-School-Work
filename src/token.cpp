@@ -12,11 +12,18 @@ Token::Token(string str, bool Tests) : str(cutDown(str)) {
 
         status = testType;
 
-
     } else if (this->str == "&&" || this->str == "||") {
 
         status = connector;
 
+    } else if (this->str == "(") {
+
+        status = lParren;
+
+    } else if (this->str == ")") {
+
+        status = rParren;
+        
     } else if (this->str[0] == '[') { 
 
         status = test2;
