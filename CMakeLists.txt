@@ -1,24 +1,19 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 2.8)
 
 ADD_SUBDIRECTORY(googletest)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES
-        src/parse.cpp
-        header/parse.h
+add_executable(test unit_tests/test.cpp)
+add_executable(rshell        
+	src/parse.cpp
         src/main.cpp
         src/manager.cpp
-        header/manager.h
         src/genuse.cpp
-        header/genuse.h
         src/shuntingYard.cpp
-        header/shuntingYard.h
         src/token.cpp
-        header/token.h)
+	)
 
-add_executable(mainTest unit_tests/test.cpp)
-add_executable(rshell ${SOURCE_FILES})
 
-TARGET_LINK_LIBRARIES(mainTest gtest)
-TARGET_COMPILE_DEFINITIONS(mainTest PRIVATE gtest_disable_pthreads=ON)
+TARGET_LINK_LIBRARIES(test gtest)
+TARGET_COMPILE_DEFINITIONS(test PRIVATE gtest_disable_pthreads=ON)
