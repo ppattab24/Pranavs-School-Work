@@ -1,0 +1,3 @@
+echo "testing ls #-a"
+ls # -a
+exit
