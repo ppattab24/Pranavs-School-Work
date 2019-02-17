@@ -8,36 +8,19 @@ Token::Token(string str, bool Tests) : str(cutDown(str)) {
 
     size_t testType = checkTest(this->str);
 
-    if (testType != string::npos && Tests) {
+    if (testType != string::npos && Tests) {status = testType;} 
 
-        status = testType;
-
-    } else if (this->str == "&&" || this->str == "||") {
-
-        status = connector;
-
-    } else if (this->str == "(") {
-
-        status = lParren;
-
-    } else if (this->str == ")") {
-
-        status = rParren;
-        
-    } else if (this->str[0] == '[') { 
-
-        status = test2;
-
-    } else if (!(this->str.empty()) && (this->str[0] == '\"' && this->str[str.size() - 1] == '\"')) {
+    else if (this->str == "&&" || this->str == "||") {status = connector;} 
+    
+    else if (!(this->str.empty()) && (this->str[0] == '\"' && this->str[str.size() - 1] == '\"')) {
 
         status = quotations;
         eraseBothSides(this->str, 1);
         this->str = cutDown(this->str);
 
-    } else {
-
-        status = middle;
-    }
+    } 
+    else 
+    {status = middle;}
 }
 
 Token::Token(const vector<Token>& tokens_to_combine) {
