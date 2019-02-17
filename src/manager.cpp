@@ -192,23 +192,8 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
                     cout << "(False)" << endl;
 
                 break;
-            case Token::test1:
-
-                if(goodDirectory(token_eval_stack.top().toString()))
-                    cout << "(True)" << endl;
-                else
-                    cout << "(False)" << endl;
-
-                break;
-            case Token::test3:
-
-                if(goodFile(token_eval_stack.top().toString()))
-                    cout << "(True)" << endl;
-                else
-                    cout << "(False)" << endl;
-
-                break;
-            default:
+          
+                default:
                 cerr << "ERROR: Incorrect token type: "
                      << token_eval_stack.top().getStatus() << endl;
                 exit(7);
@@ -231,6 +216,7 @@ void Manager::evaluate(vector<Token> bin)
 
 	case Token::good:
 	    break;
+	    
         case Token::test2:
 
             wasSuccess = path.good();
@@ -240,22 +226,6 @@ void Manager::evaluate(vector<Token> bin)
 
             break;
 
-        case Token::test1:
-
-            wasSuccess = goodDirectory(bin[0].toString());
-
-            if (wasSuccess) {cout << "(True)" << endl;}
-            else {cout << "(False)" << endl;}
-            break;
-
-        case Token::test3:
-
-            wasSuccess = goodFile(bin[0].toString());
-
-            if (wasSuccess) {cout << "(True)" << endl;}
-            else {cout << "(False)" << endl;}
-            break;
-	
 	case Token::connector:
 	    //cout << "This is the connector case in evalate" << endl << endl; 
 	    wasSuccess = false;
@@ -314,48 +284,3 @@ queue<Token> Manager::combineCommands(queue<Token>& old_token_queue)
 
     return new_token_queue;
 }
-
-bool Manager::goodDirectory(string pathname)
-{
-    struct stat sb;
-
-    stat(pathname.c_str(), &sb);
-
-    if ( access(pathname.c_str(),0) == 0 )
-    {
-        if (sb.st_mode & S_IFDIR) {
-            wasSuccess = true;  
-            return true;
-        }
-        else {
-            wasSuccess = false; 
-            return false;
-        }
-    }
-
-    wasSuccess = false; 
-    return false;
-}
-
-bool Manager::goodFile(string pathname)
-{
-    struct stat sb;
-
-    stat(pathname.c_str(), &sb);
-
-    if ( access(pathname.c_str(),0) == 0 )
-    {
-        if (sb.st_mode & S_IFREG) {
-            wasSuccess = true;  
-            return true;
-        }
-        else {
-            wasSuccess = false;
-            return false;
-        }
-    }
-
-    wasSuccess = false; 
-    return false;
-}
-

@@ -1,2 +1,1 @@
-echo "ls -a; echo hello && mkdir test || echo world; git status; rm -rf test && exit"
 ls -a; echo hello && mkdir test || echo world; git status; rm -rf test && exit
