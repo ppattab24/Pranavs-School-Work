@@ -105,6 +105,7 @@ void Parse::_init(char *cstring, char parser, bool quotesSeparately, bool Tests)
     bool weCareAboutQuotes = quotesSeparately && _Quotes(cstring);
 
     while(*walker != '\0') {
+        cout << "WE ARE HEAR" << endl << endl;
 
         string currentStr = "";
         bool inQuoteFlag = false, commentFound = false;
