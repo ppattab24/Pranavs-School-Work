@@ -113,16 +113,16 @@ void Parse::_init(char *cstring, char parser, bool quotesSeparately, bool Tests)
         bool inQuoteFlag = false, commentFound = false;
 
         while (*walker != '\0' && ( (*walker != parser) || (inQuoteFlag && weCareAboutQuotes)) ) {
-            cout << "WE ARE HEAR" << endl << endl;
+            //cout << "WE ARE HEAR" << endl << endl;
             char currentChar = *walker;
 
-            if (currentChar == '\"') {inQuoteFlag = true; }
+            if (currentChar == '\"') {inQuoteFlag = !inQuoteFlag; }
 
-            if (inQuoteFlag == false) {
-                if (currentChar == '#') {
+            if (currentChar == '#' && !inQuoteFlag) {
+               // if (currentChar == '#') {
                     commentFound = true;
                     break;
-                }
+          
             }
 
             currentStr += currentChar;
