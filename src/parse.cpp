@@ -112,7 +112,7 @@ void Parse::_init(char *cstring, char parser, bool quotesSeparately, bool Tests)
         string currentStr = "";
         bool inQuoteFlag = false, commentFound = false;
 
-        while (*walker != '\0' && ( (*walker != parser) || (inQuoteFlag && weCareAboutQuotes)) ) {
+        while (*walker != '\0' && ( (*walker != parser) || (inQuoteFlag && weCareAboutQuotes && commentFound == false)) ) {
             //cout << "WE ARE HEAR" << endl;
             char currentChar = *walker;
             
