@@ -113,11 +113,13 @@ void Parse::_init(char *cstring, char parser, bool quotesSeparately, bool Tests)
 
             char currentChar = *walker;
 
-            if (currentChar == '\"') {inQuoteFlag = !inQuoteFlag; }
+            if (currentChar == '\"') {inQuoteFlag = true; }
 
-            if (currentChar == '#' && !inQuoteFlag) {
-                commentFound = true;
-                break;
+            if (inQuoteFlag == false) {
+                if (currentChar == '#') {
+                    commentFound = true;
+                    break;
+                }
             }
 
             currentStr += currentChar;
