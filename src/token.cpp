@@ -19,6 +19,8 @@ Token::Token(string str, bool Tests) : str(cutDown(str)) {
     } else if (this->str == ")") {
 
         status = rParren;
+        
+    }
     
     else if (!(this->str.empty()) && (this->str[0] == '\"' && this->str[str.size() - 1] == '\"')) {
 
