@@ -104,28 +104,21 @@ void Parse::_init(char *cstring, char parser, bool quotesSeparately, bool Tests)
     char* walker = cstring;
     bool weCareAboutQuotes = quotesSeparately && _Quotes(cstring);
     
-    //cout << "WE ARE HEAR" << endl << endl;
-
     while(*walker != '\0') {
-        //cout << "WE ARE HEAR" << endl << endl;
-
         string currentStr = "";
         bool inQuoteFlag = false, commentFound = false;
 
-        while (*walker != '\0' && ( (*walker != parser) || (inQuoteFlag && weCareAboutQuotes && commentFound == false)) ) {
-            //cout << "WE ARE HEAR" << endl;
+        while (*walker != '\0' && ( (*walker != parser) || (inQuoteFlag && weCareAboutQuotes)) ) {
             char currentChar = *walker;
             
-            //cout << currentChar << endl;
+            if (currentChar == '\"') { inQuoteFlag = !inQuoteFlag; }
 
-            if (currentChar == '\"') {inQuoteFlag = !inQuoteFlag; }
-
-            if (currentChar == '#' && !inQuoteFlag) {
-               // if (currentChar == '#') {
+	    if (currentChar == '#' && !inQuoteFlag) {
                     commentFound = true;
                     break;
-          
             }
+
+	    //cout << commentFound << endl;
 
             currentStr += currentChar;
 
@@ -135,7 +128,7 @@ void Parse::_init(char *cstring, char parser, bool quotesSeparately, bool Tests)
 
         if (!currentStr.empty())
         {
-            if ( (!q.empty()) && (q.back().isTest()) && (Tests) && (currentStr != "&&" && currentStr != "||") ) 
+            if ( (!q.empty()) && (q.back().isTest()) && (Tests) && (currentStr != "&&" && currentStr != "||" && currentStr != ";") ) 
             {
                 q.push(Token(currentStr, q.back().getStatus()));
             }

@@ -15,7 +15,7 @@ void Manager::run() {
 
         Token currLine;
         queue<Token> delimited_queue, main_token_queue;
-        Parse firstParse(input, ';', false, false);  
+        Parse firstParse(input, ';', true, false);  
 
         while(!firstParse.done())
         {
@@ -29,6 +29,8 @@ void Manager::run() {
             {
                 Token currToken;
                 secondParse >> currToken;
+
+		//cout << currToken.toString() << endl;
 
                 delimited_queue.push(currToken);
             }
@@ -124,17 +126,6 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 
     while(!token_postfix_queue.empty())
     {
-//	int counter = 0;
-  //  	queue<Token> temp = token_postfix_queue;
-	    
-/*	while (!temp.empty()) { // checking for multiple connectors
-	    //if (temp.front().getStatus() == Token::connector) {
-//	cout << temp.front().toString() << endl;
-		    temp.pop();
-	    //]
-	}
-	*/
-	    
         if (token_postfix_queue.front().getStatus() != Token::connector)
         {
             token_eval_stack.push(token_postfix_queue.front());
