@@ -11,10 +11,8 @@ Parse::Parse(char *cstring, char parser, bool quotesSeparately, bool Tests) {
 }
 
 Parse::Parse(string str, char parser, bool quotesSeparately, bool Tests) {
-
     str = padParse(str, '(');
     str = padParse(str, ')');
-
     char* c = str_to_char(str);
     _init(c, parser, quotesSeparately, Tests);
     delete [] c;
@@ -125,7 +123,6 @@ void Parse::_init(char *cstring, char parser, bool quotesSeparately, bool Tests)
             walker++;
 
         }
-
         if (!currentStr.empty())
         {
             if ( (!q.empty()) && (q.back().isTest()) && (Tests) && (currentStr != "&&" && currentStr != "||" && currentStr != ";") ) 

@@ -9,8 +9,6 @@ Token::Token(string str, bool Tests) : str(cutDown(str)) {
     size_t testType = checkTest(this->str);
 
     if (testType != string::npos && Tests) {status = testType;} 
-
-    else if (this->str == "&&" || this->str == "||") {status = connector;} 
     
     else if (this->str == "(") {
 
@@ -22,6 +20,8 @@ Token::Token(string str, bool Tests) : str(cutDown(str)) {
         
     }
     
+       else if (this->str == "&&" || this->str == "||") {status = connector;} 
+       
     else if (!(this->str.empty()) && (this->str[0] == '\"' && this->str[str.size() - 1] == '\"')) {
 
         status = quotations;

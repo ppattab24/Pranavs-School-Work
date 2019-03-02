@@ -54,4 +54,11 @@ void shuntingYard::run()
 
 }
 
-queue<Token> shuntingYard::getReversePolish() { return command_queue; }
+queue<Token> shuntingYard::getReversePolish() {
+       //	queue<Token> temp = command_queue;
+//	while(!temp.empty()){
+//		cout << temp.front().toString() << endl;
+//		temp.pop();
+//	}
+	return command_queue; 
+}

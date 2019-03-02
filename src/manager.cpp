@@ -1,5 +1,7 @@
 #include "../header/manager.h"
 
+// TODO: make global varaibles to check for parentheses after an OR and another check for an && in those parentheses
+
 void Manager::run() {
 
     char input[1024];
@@ -15,7 +17,7 @@ void Manager::run() {
 
         Token currLine;
         queue<Token> delimited_queue, main_token_queue;
-        Parse firstParse(input, ';', true, false);  
+        Parse firstParse(input, ';', true, true);  
 
         while(!firstParse.done())
         {
@@ -121,7 +123,7 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
     stack<Token> token_eval_stack;
     vector<Token> vectorToEval;
 	
-	
+	stack<Token> temp;
     
 
     while(!token_postfix_queue.empty())
@@ -134,6 +136,11 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
         }
         else 
         {
+		temp = token_eval_stack;
+		while(!temp.empty()){
+		cout << temp.top().toString() << endl;
+		temp.pop();
+		}
 
             Token op2 = token_eval_stack.top();
             token_eval_stack.pop();
@@ -200,8 +207,8 @@ void Manager::evaluate(vector<Token> bin)
     switch (bin[0].getStatus())
     {
         case Token::middle:
-	    //cout << "Executing Test." << endl;
-            execute(bin[0].toString());
+//cout << bin[0].toString() << endl;
+    		execute(bin[0].toString());
 
             break;
 

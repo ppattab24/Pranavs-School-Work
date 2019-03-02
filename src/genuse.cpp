@@ -23,7 +23,7 @@ string cutDown(const string& trimMe) {
 
 	size_t left = trimMe.find_first_not_of(whitespace);
 	size_t right = trimMe.find_last_not_of(whitespace);
-
+//	cout << trimMe << endl;
 	if (left == UINT_MAX || right == UINT_MAX) {
 		newStr = "";
         } 
