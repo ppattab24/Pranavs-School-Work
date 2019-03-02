@@ -51,6 +51,7 @@ void Manager::run() {
 
 void Manager::execute(string commandStr) {
 
+	cout << commandStr << endl;
     char * cStr = str_to_char(commandStr);
     char * cmd[64];
     memset(cmd, 0, sizeof(cmd));
@@ -125,6 +126,16 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 	
 	stack<Token> temp;
     
+	queue<Token> dummy = token_postfix_queue;
+
+	cout << "This is the queue: ";
+	while(!dummy.empty())
+	{
+		cout << dummy.front().toString() << " ";
+		dummy.pop();
+	}
+
+	 cout << endl;
 
     while(!token_postfix_queue.empty())
     {
@@ -136,10 +147,12 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
         }
         else 
         {
+		cout << "\nThis is the Stack: " << endl;
 		temp = token_eval_stack;
 		while(!temp.empty()){
 		cout << temp.top().toString() << endl;
 		temp.pop();
+		cout << token_postfix_queue.front().toString() << endl;
 		}
 
             Token op2 = token_eval_stack.top();

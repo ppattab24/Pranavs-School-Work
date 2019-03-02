@@ -14,9 +14,13 @@ void shuntingYard::run()
         delivery.pop();
 
 
-        if( currentToken.getStatus() == Token::middle || currentToken.getStatus() == Token::quotations
-                || currentToken.isTest() )
-            command_queue.push(currentToken);
+        if( currentToken.getStatus() == Token::middle || currentToken.getStatus() == Token::quotations || currentToken.isTest() )
+	{
+		// This branch will only have commands
+	//	cout << currentToken.toString() << endl;
+		command_queue.push(currentToken);
+	}
+	
         if(currentToken.getStatus() == Token::connector)
         {
 
@@ -40,7 +44,7 @@ void shuntingYard::run()
                 operator_stack.pop();
             }
 
-            assert(!operator_stack.empty());
+            //assert(!operator_stack.empty());
             operator_stack.pop();  
         }
     }
