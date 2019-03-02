@@ -8,12 +8,14 @@ shuntingYard::shuntingYard(queue<Token> command)
 
 void shuntingYard::run()
 {
+    Token temp;
     while(!delivery.empty())    
     {
+//	cout << "\nShuntingYard is starting.\n";
         Token currentToken = delivery.front();
         delivery.pop();
 
-
+//	cout << currentToken.toString() << endl;
         if( currentToken.getStatus() == Token::middle || currentToken.getStatus() == Token::quotations || currentToken.isTest() )
 	{
 		// This branch will only have commands
@@ -34,19 +36,33 @@ void shuntingYard::run()
         }
 
         if(currentToken.getStatus() == Token::lParren)
-            operator_stack.push(currentToken);
+   	{ 
+//		command_queue.push(operator_stack.top());
+//		operator_stack.pop();
+		//operator_stack.push(currentToken);
+	}
 
         if(currentToken.getStatus() == Token::rParren)
         {
-            while(operator_stack.top().getStatus() != Token::lParren)
+	    cout << "\nReached a ')'\n";
+            while(!operator_stack.empty() && operator_stack.top().getStatus() != Token::lParren)
             {
                 command_queue.push(operator_stack.top());
                 operator_stack.pop();
             }
 
             //assert(!operator_stack.empty());
-            operator_stack.pop();  
+           // operator_stack.pop();  
         }
+	queue<Token> dummy = command_queue;
+	cout << "This is the queue: ";
+	while(!dummy.empty())
+	{
+		cout << dummy.front().toString() << " ";
+		dummy.pop();
+	}
+	cout << endl;
+
     }
 
 
