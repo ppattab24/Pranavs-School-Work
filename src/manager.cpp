@@ -41,7 +41,7 @@ void Manager::run() {
 	//	cout << cl.at(i).toString() << " ";
 		++i;
             }
-	    cout << endl;
+	   // cout << endl;
 
 
             shuntingYard sy(delimited_queue);
@@ -77,7 +77,7 @@ void Manager::execute(string commandStr) {
     
     if((process_id = fork()) < 0)   
     {
-     A:   exit(1);
+        exit(1);
     }
     else if (process_id == 0)     
     {
@@ -129,6 +129,7 @@ void Manager::parse(char *input, char **command)
 
 void Manager::evalParsed(queue<Token>& token_postfix_queue)
 {
+    bool AndBeforeEndOr = false;
     bool singleExecutionOr = false;
     bool checkBeforeEndOr = false;
     stack<Token> token_eval_stack;
@@ -137,15 +138,16 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
     vector<string> operators;
     int i = 0;	
     int numAmpersandsLor = 0;
+    int numConnectors = 0;
     stack<Token> temp;
     
     queue<Token> dummy = token_postfix_queue;
     queue<Token> connectors;
 
-   // cout << "This is the queue: ";
+    cout << "This is the queue: ";
     while(!dummy.empty())
     {
- //	cout << dummy.front().toString() << " ";
+ 	cout << dummy.front().toString() << " ";
 	if(dummy.front().getStatus() == 2)
 		operators.push_back(" ");
 	else
@@ -158,22 +160,27 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 		special_token_eval_stack.push(dummy.front());
 	}
 	else
+	{
 		connectors.push(dummy.front());
+		++numConnectors;
+	}
 	dummy.pop();
 	
    }
-  // cout << endl;
+   cout << endl;
 
-  // cout << "This is the vector:_";
+   cout << "This is the vector:_";
 
-  // for(size_t i = 0; i < operators.size(); ++i)
-  // {
-  //  	cout << operators.at(i) << "_";
-  // }
+   for(size_t i = 0; i < operators.size(); ++i)
+   {
+    	cout << operators.at(i) << "_";
+   }
 
-//	cout << endl;
+	cout << endl;
 	if(operators.size() > 2)
    		if(operators.at(2) != "||" && operators.at(2) != "&&")
+			singleExecutionOr = true;
+		else if(numConnectors == 2 && operators.at(operators.size() - 1) == "||")
 			singleExecutionOr = true;
    if(operators.at(operators.size() - 1) == "||")
    {
@@ -186,6 +193,7 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 // change
     	if((operators.at(operators.size() - 2) == "&&"))
 	{
+		AndBeforeEndOr = true;
 		for(size_t j = 0; j < cl.size(); ++j)
 		{
 			if(cl.at(j).toString() == "&&")
@@ -211,7 +219,12 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 		{
 			while(token_postfix_queue.front().getStatus() != Token::connector)
 			{
-				token_postfix_queue.pop();
+//				cout << "This is the current front of the postfix queue " << token_postfix_queue.front().toString() << endl; 
+				if(token_eval_stack.top().getStatus() != 1)
+					token_postfix_queue.pop();
+
+				else break;
+
 			}
 //			cout << "The size of the queue is: " << token_postfix_queue.size() << endl;
 			 dummy = token_postfix_queue;
@@ -250,10 +263,17 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 				token_eval_stack.pop();
 			}
 
+			while(!special_token_eval_stack.empty())
+			{
+				special_flipped_eval_stack.push(special_token_eval_stack.top());
+				special_token_eval_stack.pop();
+			}
+
+
 		//	cout << "singleExecutionOr = " << singleExecutionOr << endl;
 			if(singleExecutionOr)
 			{
-                         	token_eval_stack = flipped_eval_stack;
+                         	token_eval_stack = special_flipped_eval_stack;
 
 				Token blah = token_eval_stack.top();
 				vectorToEval.push_back(blah);
@@ -262,19 +282,37 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 				evaluate(vectorToEval);
 				vectorToEval.clear();
 				
-				while(!token_postfix_queue.empty())
-					token_postfix_queue.pop();
-				break;
+				if(wasSuccess)
+				{
+					while(!token_postfix_queue.empty())
+						token_postfix_queue.pop();
+					break;
+				}
+				else
+				{
+					Token op1 = token_eval_stack.top();
+				        token_eval_stack.pop();
+
+            				Token connector = token_postfix_queue.front();
+            				token_postfix_queue.pop();
+
+            				Token op2 = token_eval_stack.top();
+            				token_eval_stack.pop();
+
+            				vectorToEval.push_back(op1);
+            				vectorToEval.push_back(connector);
+            				vectorToEval.push_back(op2);
+           				evaluate(vectorToEval); 
+            				vectorToEval.clear();  
+					break;
+				}	
 			}
 
+			// The error is here with numAmpersandsLor
+			// because we are executing just the first three expressions in the queue and disregarding the rest
+			// This doesn't work because in our case, the first && expression doesn't execute
 			if(numAmpersandsLor != 0)
 			{
-				while(!special_token_eval_stack.empty())
-					{
-						special_flipped_eval_stack.push(special_token_eval_stack.top());
-						special_token_eval_stack.pop();
-					}
-
 				token_eval_stack = special_flipped_eval_stack;
 				for(int z = 0; z < numAmpersandsLor; ++z)
 				{
@@ -296,14 +334,22 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 					vectorToEval.clear();
 
 				//	cout << "The size of vectorToEval is " << vectorToEval.size() << endl;
-
+					cout << "numAmpersandsLor= " << numAmpersandsLor << endl;
 					if(wasSuccess)
-						{
+					{
 					  	    	Token t("", Token::good);
                 					token_eval_stack.push(t);
-						}
-
-	
+					}
+					else if(AndBeforeEndOr && !wasSuccess)
+					{
+			 				Token t("", Token::bad);
+                					token_eval_stack.push(t);
+							AndBeforeEndOr = false;
+					}
+					else
+					{
+						++numAmpersandsLor;
+					}
 				}
 				while(!token_postfix_queue.empty())
 					token_postfix_queue.pop();
@@ -344,10 +390,10 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 		//cout << token_postfix_queue.front().toString() << endl;
 //		}
 
-		else
-		{
-	 		Token op2 = token_eval_stack.top();
-          		token_eval_stack.pop();
+	    else
+	    {
+	    Token op2 = token_eval_stack.top();
+            token_eval_stack.pop();
 
             Token connector = token_postfix_queue.front();
             token_postfix_queue.pop();
@@ -360,7 +406,7 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
             vectorToEval.push_back(op2);
             evaluate(vectorToEval); 
             vectorToEval.clear();   
-		}
+	    }
 
             
             if (wasSuccess) 
