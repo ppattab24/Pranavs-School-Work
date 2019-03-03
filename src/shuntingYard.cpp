@@ -39,38 +39,48 @@ void shuntingYard::run()
    	{ 
 //		command_queue.push(operator_stack.top());
 //		operator_stack.pop();
-		//operator_stack.push(currentToken);
+		operator_stack.push(currentToken);
 	}
 
         if(currentToken.getStatus() == Token::rParren)
         {
-	    cout << "\nReached a ')'\n";
-            while(!operator_stack.empty() && operator_stack.top().getStatus() != Token::lParren)
+//	    cout << "\nReached a ')'\n";
+            while(/*operator_stack.empty() &&*/ operator_stack.top().getStatus() != Token::lParren)
             {
                 command_queue.push(operator_stack.top());
                 operator_stack.pop();
             }
 
             //assert(!operator_stack.empty());
-           // operator_stack.pop();  
+            operator_stack.pop();  
         }
-	queue<Token> dummy = command_queue;
-	cout << "This is the queue: ";
-	while(!dummy.empty())
-	{
-		cout << dummy.front().toString() << " ";
-		dummy.pop();
-	}
-	cout << endl;
+//	queue<Token> dummy = command_queue;
+//	cout << "This is the queue: ";
+//	while(!dummy.empty())
+//	{
+//		cout << dummy.front().toString() << " ";
+//		dummy.pop();
+//	}
+//	cout << endl;
 
     }
-
 
     while(!operator_stack.empty())
     {
         command_queue.push(operator_stack.top());
         operator_stack.pop();
     }
+
+    	queue<Token> dummy = command_queue;
+
+//	cout << "This is the queue: ";
+//	while(!dummy.empty())
+//	{
+//		cout << dummy.front().toString() << " ";
+//		dummy.pop();
+//	}
+//	cout << endl;
+
 
 }
 

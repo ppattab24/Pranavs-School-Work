@@ -69,7 +69,7 @@ void Manager::execute(string commandStr) {
     
     if((process_id = fork()) < 0)   
     {
-        exit(1);
+     A:   exit(1);
     }
     else if (process_id == 0)     
     {
@@ -121,44 +121,145 @@ void Manager::parse(char *input, char **command)
 
 void Manager::evalParsed(queue<Token>& token_postfix_queue)
 {
+    bool singleExecutionOr = false;
+    bool checkBeforeEndOr = false;
     stack<Token> token_eval_stack;
     vector<Token> vectorToEval;
-	
-	stack<Token> temp;
+    vector<string> operators;
+    int i = 0;	
+    stack<Token> temp;
     
-	queue<Token> dummy = token_postfix_queue;
+    queue<Token> dummy = token_postfix_queue;
 
-//	cout << "This is the queue: ";
-//	while(!dummy.empty())
-//	{
-//		cout << dummy.front().toString() << " ";
-//		dummy.pop();
-//	}
+    cout << "This is the queue: ";
+    while(!dummy.empty())
+    {
+ 	cout << dummy.front().toString() << " ";
+	if(dummy.front().getStatus() == 2)
+		operators.push_back(" ");
+	else
+	{
+		operators.push_back(dummy.front().toString());
+	}
+		dummy.pop();
+   }
+   cout << endl;
 
-//	cout << "\nHere" << endl;
+   cout << "This is the vector:_";
 
-//	 cout << endl;
+   for(size_t i = 0; i < operators.size(); ++i)
+   {
+    	cout << operators.at(i) << "_";
+   }
+
+	cout << endl;
+	if(operators.size() > 2)
+   		if(operators.at(2) != "||" && operators.at(2) != "&&")
+			singleExecutionOr = true;
+   if(operators.at(operators.size() - 1) == "||")
+   {
+    	if((operators.at(operators.size() - 2) == "||") || (operators.at(operators.size() - 2) == "&&"))
+    	{
+    		checkBeforeEndOr = true;
+    	}
+    	else
+       		checkBeforeEndOr = false;	
+   }
+
 
     while(!token_postfix_queue.empty())
     {
         if (token_postfix_queue.front().getStatus() != Token::connector)
-        {
-            token_eval_stack.push(token_postfix_queue.front());
-            token_postfix_queue.pop();
+        {	    
+		if(!token_eval_stack.empty())
+		{
+//		    cout << "The status of top of stack is: " << token_eval_stack.top().getStatus() << endl;
+//		    cout << "The size of the stack is: " << token_eval_stack.size() << endl;
+	    	if(token_eval_stack.top().getStatus() == 1 && token_eval_stack.size() == 1)
+		{
+			while(token_postfix_queue.front().getStatus() != Token::connector)
+			{
+				token_postfix_queue.pop();
+			}
+//			cout << "The size of the queue is: " << token_postfix_queue.size() << endl;
+			 dummy = token_postfix_queue;
 
+//			 cout << "This is the queue: ";
+			while(!dummy.empty())
+			{
+//				cout << dummy.front().toString() << " ";
+				dummy.pop();
+			}
+
+				if(token_postfix_queue.size() == 1)
+				{
+//					cout << "The front of the queue: " << token_postfix_queue.front().toString() << endl;  
+					if(token_postfix_queue.front().toString() == "||")
+					{
+						token_postfix_queue.pop();
+						continue;
+					}
+				}					
+		}
+	    }
+   
+              token_eval_stack.push(token_postfix_queue.front());
+              token_postfix_queue.pop(); 
         }
         else 
         {
-	//	cout << "\nThis is the Stack: " << endl;
+		if(checkBeforeEndOr)
+		{
+			stack<Token> flipped_eval_stack;
+			while(!token_eval_stack.empty())
+			{
+				flipped_eval_stack.push(token_eval_stack.top());
+				token_eval_stack.pop();
+			}
+			if(singleExecutionOr){
+                         	token_eval_stack = flipped_eval_stack;
+
+				Token blah = token_eval_stack.top();
+				vectorToEval.push_back(blah);
+				token_eval_stack.pop(); 
+
+				evaluate(vectorToEval);
+				vectorToEval.clear();
+				break;
+			}
+			else
+			{
+				token_eval_stack = flipped_eval_stack;
+
+				Token blah = token_eval_stack.top();
+				vectorToEval.push_back(blah);
+				token_eval_stack.pop();
+			
+				blah = token_postfix_queue.front();
+				token_postfix_queue.pop();
+				vectorToEval.push_back(blah);
+			
+				blah = token_eval_stack.top();
+				vectorToEval.push_back(blah);
+				token_eval_stack.pop();
+
+				evaluate(vectorToEval);
+				vectorToEval.clear();
+				break;
+			}
+		}
+//		cout << "\nThis is the Stack: " << endl;
 //		temp = token_eval_stack;
 //		while(!temp.empty()){
 //		cout << temp.top().toString() << endl;
 //		temp.pop();
-//		cout << token_postfix_queue.front().toString() << endl;
+		//cout << token_postfix_queue.front().toString() << endl;
 //		}
 
-            Token op2 = token_eval_stack.top();
-            token_eval_stack.pop();
+		else
+		{
+	 		Token op2 = token_eval_stack.top();
+          		token_eval_stack.pop();
 
             Token connector = token_postfix_queue.front();
             token_postfix_queue.pop();
@@ -169,15 +270,26 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
             vectorToEval.push_back(op1);
             vectorToEval.push_back(connector);
             vectorToEval.push_back(op2);
-
             evaluate(vectorToEval); 
             vectorToEval.clear();   
+		}
 
             
             if (wasSuccess) 
 	    {
-                Token t("", Token::good);
-                token_eval_stack.push(t);
+		    // this might be the problem
+//		    if(token_postfix_queue.back().toString() == "||")
+//		    {
+  //              	Token t("", Token::bad);
+    //           		token_eval_stack.push(t);
+//			cout << token_eval_stack.top().getStatus() << endl;
+//		    }
+
+//		    else
+//		    {
+                	Token t("", Token::good);
+                	token_eval_stack.push(t);
+//		    }
             } 
 	    
 	    else 
@@ -223,11 +335,14 @@ void Manager::evaluate(vector<Token> bin)
     {
         case Token::middle:
 //cout << bin[0].toString() << endl;
-    		execute(bin[0].toString());
-
+    	    execute(bin[0].toString());
             break;
 
 	case Token::good:
+	    break;
+
+	case Token::bad:
+//	    cout << "wasSuccess = " << wasSuccess << endl;
 	    break;
 	    
         case Token::test2:
