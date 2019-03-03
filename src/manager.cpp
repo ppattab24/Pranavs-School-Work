@@ -397,9 +397,25 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
             case Token::middle:
                 execute(token_eval_stack.top().toString());
                 break;
-            case Token::test2:
+	    case Token::test1:
+		if(goodDirectory(token_eval_stack.top().toString()))
+                    cout << "(True)" << endl;
+                else
+                    cout << "(False)" << endl;
+
+                break;
+	    case Token::test2:
 
                 if(path.good())
+                    cout << "(True)" << endl;
+                else
+                    cout << "(False)" << endl;
+
+                break;
+
+	    case Token::test3:
+
+                if(goodFile(token_eval_stack.top().toString()))
                     cout << "(True)" << endl;
                 else
                     cout << "(False)" << endl;
@@ -433,13 +449,34 @@ void Manager::evaluate(vector<Token> bin)
 	case Token::bad:
 //	    cout << "wasSuccess = " << wasSuccess << endl;
 	    break;
-	    
+	case Token::test1:
+
+	    wasSuccess = goodDirectory(bin[0].toString());
+
+            if (wasSuccess)
+                cout << "(True)" << endl;
+            else
+                cout << "(False)" << endl;
+
+            break;
+
         case Token::test2:
 
             wasSuccess = path.good();
 
             if (wasSuccess) {cout << "(True)" << endl;}
             else {cout << "(False)" << endl;}
+
+            break;
+
+	case Token::test3:
+
+	     wasSuccess = goodFile(bin[0].toString());
+
+            if (wasSuccess)
+                cout << "(True)" << endl;
+            else
+                cout << "(False)" << endl;
 
             break;
 
@@ -501,4 +538,48 @@ queue<Token> Manager::combineCommands(queue<Token>& old_token_queue)
     }
 
     return new_token_queue;
+}
+
+bool Manager::goodDirectory(string pathname)
+{
+    struct stat sb;
+
+    stat(pathname.c_str(), &sb);
+
+    if ( access(pathname.c_str(),0) == 0 )
+    {
+        if (sb.st_mode & S_IFDIR) {
+            wasSuccess = true;  //directory exists
+            return true;
+        }
+        else {
+            wasSuccess = false; //directory is not found
+            return false;
+        }
+    }
+
+    wasSuccess = false; //path is not found
+    return false;
+}
+
+bool Manager::goodFile(string pathname)
+{
+    struct stat sb;
+
+    stat(pathname.c_str(), &sb);
+
+    if ( access(pathname.c_str(),0) == 0 )
+    {
+        if (sb.st_mode & S_IFREG) {
+            wasSuccess = true;  //file exists
+            return true;
+        }
+        else {
+            wasSuccess = false; //file is not found
+            return false;
+        }
+    }
+
+    wasSuccess = false; //path is not found
+    return false;
 }
