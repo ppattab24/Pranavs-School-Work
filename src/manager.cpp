@@ -1,6 +1,6 @@
 #include "../header/manager.h"
 
-// TODO: make global varaibles to check for parentheses after an OR and another check for an && in those parentheses
+vector<Token> cl;
 
 void Manager::run() {
 
@@ -18,6 +18,8 @@ void Manager::run() {
         Token currLine;
         queue<Token> delimited_queue, main_token_queue;
         Parse firstParse(input, ';', true, true);  
+	
+	int i = 0; 
 
         while(!firstParse.done())
         {
@@ -35,7 +37,11 @@ void Manager::run() {
 		//cout << currToken.toString() << endl;
 
                 delimited_queue.push(currToken);
+		cl.push_back(currToken);
+	//	cout << cl.at(i).toString() << " ";
+		++i;
             }
+	    cout << endl;
 
 
             shuntingYard sy(delimited_queue);
@@ -43,6 +49,8 @@ void Manager::run() {
             evalParsed(evalQueue);
 
             clearAll(delimited_queue);
+
+	    cl.clear();
 
             cout << endl;
         }
@@ -124,35 +132,46 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
     bool singleExecutionOr = false;
     bool checkBeforeEndOr = false;
     stack<Token> token_eval_stack;
+    stack<Token> special_token_eval_stack;
     vector<Token> vectorToEval;
     vector<string> operators;
     int i = 0;	
+    int numAmpersandsLor = 0;
     stack<Token> temp;
     
     queue<Token> dummy = token_postfix_queue;
+    queue<Token> connectors;
 
-    cout << "This is the queue: ";
+   // cout << "This is the queue: ";
     while(!dummy.empty())
     {
- 	cout << dummy.front().toString() << " ";
+ //	cout << dummy.front().toString() << " ";
 	if(dummy.front().getStatus() == 2)
 		operators.push_back(" ");
 	else
 	{
 		operators.push_back(dummy.front().toString());
 	}
-		dummy.pop();
+
+	if(dummy.front().toString() != "&&" && dummy.front().toString() != "||")
+	{	
+		special_token_eval_stack.push(dummy.front());
+	}
+	else
+		connectors.push(dummy.front());
+	dummy.pop();
+	
    }
-   cout << endl;
+  // cout << endl;
 
-   cout << "This is the vector:_";
+  // cout << "This is the vector:_";
 
-   for(size_t i = 0; i < operators.size(); ++i)
-   {
-    	cout << operators.at(i) << "_";
-   }
+  // for(size_t i = 0; i < operators.size(); ++i)
+  // {
+  //  	cout << operators.at(i) << "_";
+  // }
 
-	cout << endl;
+//	cout << endl;
 	if(operators.size() > 2)
    		if(operators.at(2) != "||" && operators.at(2) != "&&")
 			singleExecutionOr = true;
@@ -162,10 +181,23 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
     	{
     		checkBeforeEndOr = true;
     	}
-    	else
+	else
        		checkBeforeEndOr = false;	
+// change
+    	if((operators.at(operators.size() - 2) == "&&"))
+	{
+		for(size_t j = 0; j < cl.size(); ++j)
+		{
+			if(cl.at(j).toString() == "&&")
+				++numAmpersandsLor; 	
+
+			else if(cl.at(j).toString() == "||")
+				break;	
+		}
+	}
    }
 
+   //cout << "checkBeforeEndOr = " << checkBeforeEndOr << endl;
 
     while(!token_postfix_queue.empty())
     {
@@ -211,12 +243,16 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 		if(checkBeforeEndOr)
 		{
 			stack<Token> flipped_eval_stack;
+			stack<Token> special_flipped_eval_stack;
 			while(!token_eval_stack.empty())
 			{
 				flipped_eval_stack.push(token_eval_stack.top());
 				token_eval_stack.pop();
 			}
-			if(singleExecutionOr){
+
+		//	cout << "singleExecutionOr = " << singleExecutionOr << endl;
+			if(singleExecutionOr)
+			{
                          	token_eval_stack = flipped_eval_stack;
 
 				Token blah = token_eval_stack.top();
@@ -225,7 +261,55 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 
 				evaluate(vectorToEval);
 				vectorToEval.clear();
+				
+				while(!token_postfix_queue.empty())
+					token_postfix_queue.pop();
 				break;
+			}
+
+			if(numAmpersandsLor != 0)
+			{
+				while(!special_token_eval_stack.empty())
+					{
+						special_flipped_eval_stack.push(special_token_eval_stack.top());
+						special_token_eval_stack.pop();
+					}
+
+				token_eval_stack = special_flipped_eval_stack;
+				for(int z = 0; z < numAmpersandsLor; ++z)
+				{
+					Token blah1 = token_eval_stack.top();
+					vectorToEval.push_back(blah1);
+					token_eval_stack.pop();
+			
+					Token blah2 = connectors.front();
+					connectors.pop();
+					vectorToEval.push_back(blah2);
+				
+					Token blah3 = token_eval_stack.top();
+					vectorToEval.push_back(blah3);
+					token_eval_stack.pop();
+					
+				//	cout << vectorToEval.at(2).toString() << endl;
+
+					evaluate(vectorToEval);
+					vectorToEval.clear();
+
+				//	cout << "The size of vectorToEval is " << vectorToEval.size() << endl;
+
+					if(wasSuccess)
+						{
+					  	    	Token t("", Token::good);
+                					token_eval_stack.push(t);
+						}
+
+	
+				}
+				while(!token_postfix_queue.empty())
+					token_postfix_queue.pop();
+
+				break;
+	
 			}
 			else
 			{
@@ -245,6 +329,10 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 
 				evaluate(vectorToEval);
 				vectorToEval.clear();
+				
+				while(!token_postfix_queue.empty())
+					token_postfix_queue.pop();
+
 				break;
 			}
 		}
@@ -329,8 +417,9 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 void Manager::evaluate(vector<Token> bin)
 {
     ifstream path(bin[0].toString().c_str());
-    //cout << bin[0].toString() << ": ";
-    //cout << bin[0].getStatus() << endl << endl;
+ //   cout << "The bin size is " << bin.size() << endl; 
+  //  cout << "This Token is '" << bin[0].toString() << "' it's status is: ";
+ //   cout << bin[0].getStatus() << endl << endl;
     switch (bin[0].getStatus())
     {
         case Token::middle:
@@ -366,9 +455,10 @@ void Manager::evaluate(vector<Token> bin)
     }
 
     path.close();
+//	cout << "We got to <path.close();>" << endl;
 
     bin[0].setStatus(wasSuccess);
-
+ //   cout << bin[2].toString() << endl;
     if(shouldExecute(bin))
         execute(bin[2].toString());
 }

@@ -1,0 +1,38 @@
+echo ">(echo A && echo B) && (echo C && echo D) || (echo E && echo F)";
+(echo A && echo B) && (echo C && echo D) || (echo E && echo F);
+echo ">echo A || (echo B && echo C && echo D)";
+(echo A) || (echo B && echo C && echo D);
+(echo A) || (echo B && echo C && echo D);
+echo ">echo A || (echo B && echo C);echo A || (echo B || echo C)";
+echo A || (echo B && echo C);echo A || (echo B || echo C);
+echo ">(echo A) || (echo B || echo C)";
+(echo A) || (echo B || echo C);
+echo ">echo A || echo B && echo C && echo D";
+echo A || echo B && echo C && echo D;
+echo ">(echo A || echo B) && echo C && echo D";
+(echo A || echo B) && echo C && echo D;
+echo ">echo A || echo B;(echo A) || (echo B)";
+echo A || echo B;(echo A) || (echo B);
+echo ">echo A || echo B || echo C && echo D";
+echo A || echo B || echo C && echo D;
+echo ">(echo A || echo B) && (echo C || echo D)";
+(echo A || echo B) && (echo C || echo D);
+echo ">echo A || echo B || echo C";
+echo A || echo B || echo C;
+echo ">(echo A && echo B && echo C) || echo D";
+(echo A && echo B && echo C) || echo D;
+echo ">(echo A && echo B) || (echo C && echo D)";
+(echo A && echo B) || (echo C && echo D);
+echo ">(echo A && echo B) && (echo C && echo D || echo E && echo F)";
+(echo A && echo B) && (echo C && echo D || echo E && echo F);
+echo ">echo A || echo B || (echo C && echo D)";
+echo A || echo B || (echo C && echo D);
+echo ">(echo A && echo B) && echo C || (echo E && echo F)";
+(echo A && echo B) && echo C || (echo E && echo F);
+#fail
+echo ">(false && echo B) && echo C || (echo E && echo F)";
+(false && echo B) && echo C || (echo E && echo F);
+echo ">(false && echo B) || (echo C && echo D)";
+(false && echo B) || (echo C && echo D)
+echo ">exit";
+exit
