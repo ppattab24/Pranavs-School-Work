@@ -20,7 +20,13 @@ Token::Token(string str, bool Tests) : str(cutDown(str)) {
         
     }
     
-       else if (this->str == "&&" || this->str == "||") {status = connector;} 
+    else if (this->str[0] == '[') {   
+
+        status = test2;
+
+    }
+    
+    else if (this->str == "&&" || this->str == "||") {status = connector;} 
        
     else if (!(this->str.empty()) && (this->str[0] == '\"' && this->str[str.size() - 1] == '\"')) {
 
@@ -90,7 +96,7 @@ bool operator !=(const string& str, const Token& t) {return str == t.toString();
 
 Token &Token::operator+=(const Token &t) {
 
-    assert(this->getStatus() == Token::middle);
+  //  assert(this->getStatus() == Token::middle);
 
     this->str += " " + t.str;
 
@@ -130,7 +136,7 @@ void Token::reduce() {
     if (str[0] == '[' && str[str.size() - 1] == ']') {eraseBothSides(str, 1);} 
     else 
     {
-        assert(toLowercase(str.substr(0, 4)) == "test");
+     //   assert(toLowercase(str.substr(0, 4)) == "test");
         str.erase(0, 4);
     }
 
@@ -141,7 +147,7 @@ void Token::reduce() {
         case Token::test1: {
 
             foundIndex = str.find("-d");
-            assert(foundIndex != string::npos);
+         //   assert(foundIndex != string::npos);
 
             break;
         }
@@ -149,7 +155,7 @@ void Token::reduce() {
         case Token::test3: {
 
             foundIndex = str.find("-f");
-            assert(foundIndex != string::npos);
+         //   assert(foundIndex != string::npos);
 
             break;
         }

@@ -26,7 +26,6 @@ void Parse::compressTokens() {
 
     queue<Token> replacementQueue;
 
-
     while(!q.empty()) {
 
         vector<Token> combinedVector;
@@ -53,9 +52,20 @@ void Parse::compressTokens() {
             }
 
         }
+	
+	// remove this
+/*	for(size_t i = 0; i < combinedVector.size(); ++i)
+	{
+		cout << combinedVector.at(i).toString() << " ";
+	}
+	cout << endl;
+
+	//
+	*/
 
         Token combinedToken(combinedVector);
-
+	
+//	cout << "combinedToken in secondParse = " << combinedToken.getStatus() << endl;
         if(combinedToken.isTest())
             combinedToken.reduce();
 
@@ -73,6 +83,7 @@ Parse& operator >>(Parse& parser, Token& t) {
     //assert(!parser.q.empty());
 
     t = parser.q.front();
+  //  cout << "t's status = " << parser.q.front().getStatus() << endl;
     parser.q.pop();
 
     return parser;
@@ -97,6 +108,7 @@ ostream& operator <<(ostream& outs, const Parse& d) {
 
 void Parse::_init(char *cstring, char parser, bool quotesSeparately, bool Tests) {
 
+	string dummy;
     if (cstring == NULL) {return;}
 
     char* walker = cstring;
@@ -125,11 +137,13 @@ void Parse::_init(char *cstring, char parser, bool quotesSeparately, bool Tests)
         }
         if (!currentStr.empty())
         {
-            if ( (!q.empty()) && (q.back().isTest()) && (Tests) && (currentStr != "&&" && currentStr != "||" && currentStr != ";") ) 
+            if ( (!q.empty()) && (q.back().isTest()) && (Tests) && (currentStr != "&&" && currentStr != "||") ) 
             {
                 q.push(Token(currentStr, q.back().getStatus()));
             }
             else {q.push(Token(currentStr, Tests));}
+
+	//    cout << "q.back = " << q.back().getStatus() << endl;
         }
 
 
@@ -137,7 +151,10 @@ void Parse::_init(char *cstring, char parser, bool quotesSeparately, bool Tests)
         if (commentFound) {return;}
 
         if (*walker != '\0') {walker++;}
+	dummy = currentStr;
     }
+    //	cout << "currentStr = " << dummy << endl;
+
 
 }
 

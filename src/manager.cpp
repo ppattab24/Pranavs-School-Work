@@ -25,14 +25,20 @@ void Manager::run() {
         {
             firstParse >> currLine;
 
+//	    cout << "currLine's status = " << currLine.getStatus() << " and first parse constructor is done" << endl;
+//	    cout << "The second parse is starting...." << endl;
             Parse secondParse(currLine.toString(), ' ', true, true);
             secondParse.compressTokens();
             secondParse.checkFlagsAndReinitStatus();
+
+
 
             while(!secondParse.done())
             {
                 Token currToken;
                 secondParse >> currToken;
+
+//	        cout << "currToken's status = " << currToken.getStatus() << " and second parse constructor is done" << endl;
 
 		//cout << currToken.toString() << endl;
 
@@ -144,10 +150,10 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
     queue<Token> dummy = token_postfix_queue;
     queue<Token> connectors;
 
-    cout << "This is the queue: ";
+  //  cout << "This is the queue: ";
     while(!dummy.empty())
     {
- 	cout << dummy.front().toString() << " ";
+// 	cout << dummy.front().getStatus() << " ";
 	if(dummy.front().getStatus() == 2)
 		operators.push_back(" ");
 	else
@@ -167,9 +173,9 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 	dummy.pop();
 	
    }
-   cout << endl;
+ //  cout << endl;
 
-   cout << "This is the vector:_";
+/*   cout << "This is the vector:_";
 
    for(size_t i = 0; i < operators.size(); ++i)
    {
@@ -177,6 +183,7 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
    }
 
 	cout << endl;
+	*/
 	if(operators.size() > 2)
    		if(operators.at(2) != "||" && operators.at(2) != "&&")
 			singleExecutionOr = true;
@@ -319,7 +326,8 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 					Token blah1 = token_eval_stack.top();
 					vectorToEval.push_back(blah1);
 					token_eval_stack.pop();
-			
+					
+		//			cout << "First token status: " << blah1.getStatus() << endl;
 					Token blah2 = connectors.front();
 					connectors.pop();
 					vectorToEval.push_back(blah2);
@@ -334,7 +342,7 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 					vectorToEval.clear();
 
 				//	cout << "The size of vectorToEval is " << vectorToEval.size() << endl;
-					cout << "numAmpersandsLor= " << numAmpersandsLor << endl;
+				//	cout << "numAmpersandsLor= " << numAmpersandsLor << endl;
 					if(wasSuccess)
 					{
 					  	    	Token t("", Token::good);
@@ -344,7 +352,13 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 					{
 			 				Token t("", Token::bad);
                 					token_eval_stack.push(t);
-							AndBeforeEndOr = false;
+							if(numAmpersandsLor == 1)
+							{
+								token_eval_stack.pop();
+								++numAmpersandsLor;
+							}
+							else if(numAmpersandsLor <= 2)
+								AndBeforeEndOr = false;
 					}
 					else
 					{
@@ -437,6 +451,8 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
     if (token_eval_stack.size() == 1 && !token_eval_stack.top().toString().empty())
     {
         ifstream path(token_eval_stack.top().toString().c_str());
+	
+//	cout << "The token status = " << token_eval_stack.top().getStatus() << endl;
 
         switch(token_eval_stack.top().getStatus())
         {

@@ -1,0 +1,18 @@
+ls;
+echo ">[ -e textFiles ] ";
+[ -e textFiles ];
+echo ">[ -e textFiles/abcd ] ";
+ [ -e textFiles/abcd ];
+echo "> [ -d textFiles ]";
+ [ -d textFiles ]
+echo "> [ -d textFiles/abcd ]";
+ [ -d textFiles/abcd ]
+echo ">  [ -f precedence_tests.sh ]";
+ [ -f precedence_tests.sh ]
+echo ">  [ -f blah.txt ]";
+ [ -f blah.txt ]
+echo ">[ -e textFiles ] && echo A";
+[ -e textFiles ] && echo A
+echo ">[ -e textFiles ] || echo A"'
+[ -e textFiles ] || echo A;
+exit;

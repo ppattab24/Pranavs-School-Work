@@ -1,0 +1,18 @@
+ls;
+echo ">test -e textFiles";
+test -e textFiles;
+echo ">test -e textFiles/abcd";
+test -e textFiles/abcd;
+echo ">test -d textFiles";
+test -d textFiles;
+echo ">test -d textFiles/abcd";
+test -d textFiles/abcd;
+echo "> test -f precedence_tests.sh";
+test -f precedence_tests.sh;
+echo "> test -f blah.txt";
+test -f blah.txt;
+echo ">test -e textFiles && echo A";
+test -e textFiles && echo A;
+echo ">test -e textFiles || echo A"';
+test -e textFiles || echo A;
+exit;
