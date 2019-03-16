@@ -1,4 +1,5 @@
 #include <fcntl.h>
+#include <fstream>
 #include "../header/manager.h"
 
 bool redirect = false;
@@ -96,9 +97,13 @@ void Manager::execute(string commandStr) {
 	if(redirect)
 	{
 	    
-	    int fd_redirect_to = open(filename.c_str(), O_RDWR);
+	    close(1);
+		
+	    ofstream fs;
+	    fs.open(filename.c_str());
+	    //int fd_redirect_to = open(filename.c_str(), O_RDWR);
 	    // int save_stdout = dup(1);
-	    dup2(fd_redirect_to, 1);
+	    //dup2(fd_redirect_to, 1);
 	    //	int fd_to_redirect = dup(fd_redirect_to); /* magically returns 1: stdout */
             // close(fd_redirect_to); /* we don't need this */
 	}
