@@ -1,4 +1,9 @@
+#include <fcntl.h>
 #include "../header/manager.h"
+
+bool redirect = false;
+
+string filename = "";
 
 vector<Token> cl;
 
@@ -87,6 +92,16 @@ void Manager::execute(string commandStr) {
     }
     else if (process_id == 0)     
     {
+        int save_stdout = dup(1);
+	if(redirect)
+	{
+	    
+	    int fd_redirect_to = open(filename.c_str(), O_RDWR);
+	    // int save_stdout = dup(1);
+	    dup2(fd_redirect_to, 1);
+	    //	int fd_to_redirect = dup(fd_redirect_to); /* magically returns 1: stdout */
+            // close(fd_redirect_to); /* we don't need this */
+	}
 
         if(execvp(*cmd, cmd) < 0)
         {
@@ -95,7 +110,9 @@ void Manager::execute(string commandStr) {
         }
         else
         {
-            
+            dup2(save_stdout, 1);
+	    redirect = false;
+	    filename = "";
             wasSuccess = true;
         }
     }
@@ -427,10 +444,11 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 
 	    // New
 	    // I was thinking for the case of _ _ > if the connector is a '>' etc we could set the status of op1 to something aside from middle but that won't work
-	    /*if(connector.getStatus() != "&&" || connector.getStatus() != "||")
+	    if(connector.toString() != "&&" || connector.toString() != "||")
 	    {
-
-	    }*/
+		if(connector.getStatus() == Token::redirectRight)
+			op1.setStatus(Token::redirectRight);
+	    }
 
 	    // End New
 
@@ -529,6 +547,11 @@ void Manager::evaluate(vector<Token> bin)
 
 	case Token::bad:
 //	    cout << "wasSuccess = " << wasSuccess << endl;
+	    break;
+	case Token::redirectRight:
+	    filename = bin[2].toString();
+    	    redirect = true;
+       	    execute(bin[0].toString());
 	    break;
 	case Token::test1:
 
