@@ -150,10 +150,21 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
     queue<Token> dummy = token_postfix_queue;
     queue<Token> connectors;
 
-  //  cout << "This is the queue: ";
+   /* cout << "This is the queue, it has a size of: " << token_postfix_queue.size() << endl;
     while(!dummy.empty())
     {
-// 	cout << dummy.front().getStatus() << " ";
+    	    cout << dummy.front().toString() << "'s status: ";
+	    cout << dummy.front().getStatus() << " ";
+	    dummy.pop();
+    }
+    cout << endl;
+    dummy = token_postfix_queue;
+
+    cout << "The queue's contents are: " << endl;
+    */
+    while(!dummy.empty())
+    {
+ //	cout << dummy.front().toString() << " ";
 	if(dummy.front().getStatus() == 2)
 		operators.push_back(" ");
 	else
@@ -173,17 +184,16 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 	dummy.pop();
 	
    }
- //  cout << endl;
+  // cout << endl;
 
-/*   cout << "This is the vector:_";
+   /*cout << "This is the vector, it's size is " << operators.size() << ":_";
 
    for(size_t i = 0; i < operators.size(); ++i)
    {
     	cout << operators.at(i) << "_";
    }
 
-	cout << endl;
-	*/
+	cout << endl;*/	
 	if(operators.size() > 2)
    		if(operators.at(2) != "||" && operators.at(2) != "&&")
 			singleExecutionOr = true;
@@ -414,6 +424,15 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 
             Token op1 = token_eval_stack.top();
             token_eval_stack.pop();
+
+	    // New
+	    // I was thinking for the case of _ _ > if the connector is a '>' etc we could set the status of op1 to something aside from middle but that won't work
+	    /*if(connector.getStatus() != "&&" || connector.getStatus() != "||")
+	    {
+
+	    }*/
+
+	    // End New
 
             vectorToEval.push_back(op1);
             vectorToEval.push_back(connector);

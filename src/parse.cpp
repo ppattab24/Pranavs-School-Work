@@ -137,7 +137,8 @@ void Parse::_init(char *cstring, char parser, bool quotesSeparately, bool Tests)
         }
         if (!currentStr.empty())
         {
-            if ( (!q.empty()) && (q.back().isTest()) && (Tests) && (currentStr != "&&" && currentStr != "||") ) 
+	  //  cout << currentStr << endl;
+            if ( (!q.empty()) && (q.back().isTest()) && (Tests) && (currentStr != "&&" && currentStr != "||" && currentStr != "<" && currentStr != ">>" && currentStr != ">" && currentStr != "|") ) 
             {
                 q.push(Token(currentStr, q.back().getStatus()));
             }
@@ -221,5 +222,9 @@ bool Parse::_isBlacklisted(Token t) {
     return thisStatus == Token::lParren
             || thisStatus == Token::rParren
             || thisStatus == Token::connector
-            || thisStatus == Token::error;
+            || thisStatus == Token::error
+	    || thisStatus == Token::redirectLeft
+	    || thisStatus == Token::redirectRight
+	    || thisStatus == Token::redirectDoubleRight
+	    || thisStatus == Token::Pipe;
 }
