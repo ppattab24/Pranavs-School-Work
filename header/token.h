@@ -25,7 +25,7 @@ public:
         quotations,
         lParren, rParren,
         test1, test2, test3
-   	redirectLeft, redirectRight, pipe };
+   	redirectLeft, redirectRight, Pipe };
 
     void setStatus(bool); 
     void setStatus(Status);
