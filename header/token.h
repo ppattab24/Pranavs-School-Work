@@ -24,7 +24,7 @@ public:
         error,
         quotations,
         lParren, rParren,
-        test1, test2, test3
+        test1, test2, test3,
    	redirectLeft, redirectRight, Pipe };
 
     void setStatus(bool); 
