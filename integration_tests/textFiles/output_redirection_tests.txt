@@ -1,0 +1,8 @@
+echo "ls -l > ../a.txt";ls -l > ../a.txt;
+echo "cat ../a.txt";cat ../a.txt;echo "removing ../a.txt";rm ../a.txt;
+echo "(ls -l > ../a.txt) && ls -a";(ls -l > ../a.txt) && ls -a;
+echo "cat ../a.txt";cat ../a.txt;echo "removing ../a.txt";rm ../a.txt
+echo "(ls -l > ../a.txt) || ls -a";(ls -l > ../a.txt) || ls -a;
+echo "cat ../a.txt";cat ../a.txt;
+echo "ls >> ../a.txt";ls >> ../a.txt;
+echo "cat ../a.txt";cat ../a.txt;echo "removing ../a.txt";rm ../a.txt;exit;

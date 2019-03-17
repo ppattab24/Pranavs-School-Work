@@ -1,0 +1,3 @@
+echo "cat < ..names.txt";cat < ../names.txt;
+echo "(cat < ../names.txt) && ls -a";ls -a && (cat < ../names.txt);
+echo "(cat < ../names.txt) || ls -a";(cat < ../names.txt) || ls -a;exit;
