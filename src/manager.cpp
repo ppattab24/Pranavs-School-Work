@@ -71,7 +71,7 @@ void Manager::run() {
 
 void Manager::execute(string commandStr) {
 
-//	cout << commandStr << endl;
+ // cout << commandStr << endl;
     char * cStr = str_to_char(commandStr);
     char * cmd[64];
     memset(cmd, 0, sizeof(cmd));
@@ -93,19 +93,21 @@ void Manager::execute(string commandStr) {
     }
     else if (process_id == 0)     
     {
-        int save_stdout = dup(1);
-	if(redirect)
+	fstream fs;
+	int save_stdout;
+
+        if(redirect)
 	{
+		cout << "Enter here" << endl;
+	        save_stdout = dup(1);
+	        fstream fs;
+	        fs.exceptions ( std::fstream::failbit | std::fstream::badbit );
+	        cout << "1)" << endl;
+		fs.open(filename, fstream::in | fstream::out);
+		cout << "2)" << endl;
+
 	    
-	    close(1);
-		
-	    ofstream fs;
-	    fs.open(filename.c_str());
-	    //int fd_redirect_to = open(filename.c_str(), O_RDWR);
-	    // int save_stdout = dup(1);
-	    //dup2(fd_redirect_to, 1);
-	    //	int fd_to_redirect = dup(fd_redirect_to); /* magically returns 1: stdout */
-            // close(fd_redirect_to); /* we don't need this */
+	   	close(1);
 	}
 
         if(execvp(*cmd, cmd) < 0)
@@ -115,6 +117,8 @@ void Manager::execute(string commandStr) {
         }
         else
         {
+	    cout << "Here!" << endl;
+	    fs.close();
             dup2(save_stdout, 1);
 	    redirect = false;
 	    filename = "";
@@ -172,7 +176,7 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
     queue<Token> dummy = token_postfix_queue;
     queue<Token> connectors;
 
-   /* cout << "This is the queue, it has a size of: " << token_postfix_queue.size() << endl;
+    cout << "This is the queue, it has a size of: " << token_postfix_queue.size() << endl;
     while(!dummy.empty())
     {
     	    cout << dummy.front().toString() << "'s status: ";
@@ -183,10 +187,10 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
     dummy = token_postfix_queue;
 
     cout << "The queue's contents are: " << endl;
-    */
+    
     while(!dummy.empty())
     {
- //	cout << dummy.front().toString() << " ";
+ 	cout << dummy.front().toString() << " ";
 	if(dummy.front().getStatus() == 2)
 		operators.push_back(" ");
 	else
@@ -208,14 +212,14 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
    }
   // cout << endl;
 
-   /*cout << "This is the vector, it's size is " << operators.size() << ":_";
+  /* cout << "This is the operator's vector, it's size is " << operators.size() << ":_";
 
    for(size_t i = 0; i < operators.size(); ++i)
    {
     	cout << operators.at(i) << "_";
    }
 
-	cout << endl;*/	
+	cout << endl;*/
 	if(operators.size() > 2)
    		if(operators.at(2) != "||" && operators.at(2) != "&&")
 			singleExecutionOr = true;
@@ -289,11 +293,14 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
    
               token_eval_stack.push(token_postfix_queue.front());
               token_postfix_queue.pop(); 
+	    //  cout << token_eval_stack.size() << endl;
         }
         else 
         {
 		if(checkBeforeEndOr)
 		{
+			cout << "Here1" << endl;
+
 			stack<Token> flipped_eval_stack;
 			stack<Token> special_flipped_eval_stack;
 			while(!token_eval_stack.empty())
@@ -312,6 +319,7 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 		//	cout << "singleExecutionOr = " << singleExecutionOr << endl;
 			if(singleExecutionOr)
 			{
+				cout << "Here2" << endl;
                          	token_eval_stack = special_flipped_eval_stack;
 
 				Token blah = token_eval_stack.top();
@@ -352,6 +360,7 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 			// This doesn't work because in our case, the first && expression doesn't execute
 			if(numAmpersandsLor != 0)
 			{
+				cout << "HERE!3" << endl;
 				token_eval_stack = special_flipped_eval_stack;
 				for(int z = 0; z < numAmpersandsLor; ++z)
 				{
@@ -405,6 +414,7 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 			}
 			else
 			{
+				cout << "HERE4" << endl;
 				token_eval_stack = flipped_eval_stack;
 
 				Token blah = token_eval_stack.top();
@@ -438,6 +448,7 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 
 	    else
 	    {
+	    cout << "Here5" << endl;
 	    Token op2 = token_eval_stack.top();
             token_eval_stack.pop();
 
@@ -447,12 +458,16 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
             Token op1 = token_eval_stack.top();
             token_eval_stack.pop();
 
+	   // cout << "!!!!" << endl;
 	    // New
-	    // I was thinking for the case of _ _ > if the connector is a '>' etc we could set the status of op1 to something aside from middle but that won't work
 	    if(connector.toString() != "&&" || connector.toString() != "||")
 	    {
+		    cout << "Here6" << endl;
 		if(connector.getStatus() == Token::redirectRight)
+		{
 			op1.setStatus(Token::redirectRight);
+			cout << "But not here" << endl;
+		}
 	    }
 
 	    // End New
@@ -501,6 +516,7 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
             case Token::middle:
                 execute(token_eval_stack.top().toString());
                 break;
+
 	    case Token::test1:
 		if(goodDirectory(token_eval_stack.top().toString()))
                     cout << "(True)" << endl;
@@ -554,6 +570,7 @@ void Manager::evaluate(vector<Token> bin)
 //	    cout << "wasSuccess = " << wasSuccess << endl;
 	    break;
 	case Token::redirectRight:
+	    cout << "Here" << endl;
 	    filename = bin[2].toString();
     	    redirect = true;
        	    execute(bin[0].toString());
