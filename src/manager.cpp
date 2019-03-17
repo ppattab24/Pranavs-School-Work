@@ -93,21 +93,28 @@ void Manager::execute(string commandStr) {
     }
     else if (process_id == 0)     
     {
-	fstream fs;
+//	fstream fs;
 	int save_stdout;
 
         if(redirect)
 	{
-		cout << "Enter here" << endl;
+	//	cout << "Enter here" << endl;
 	        save_stdout = dup(1);
-	        fstream fs;
-	        fs.exceptions ( std::fstream::failbit | std::fstream::badbit );
-	        cout << "1)" << endl;
-		fs.open(filename, fstream::in | fstream::out);
-		cout << "2)" << endl;
+	   //	close(1);
+	   /*     cout << "1)" << endl;
+		fs.open(filename);
+		int test = dup(1);
+		cout << "The file descriptor 1 is currently at: " << test << endl;
+		cout << "2)" << endl;*/
 
-	    
-	   	close(1);
+	 	int fd = open( filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
+        	int _fd_dup = dup2(fd,1);
+        	close(fd);
+        	if(_fd_dup != 1)
+		{
+            		fprintf(stderr, "Failed to redirect command output.\n");
+            		exit(0);
+        	}
 	}
 
         if(execvp(*cmd, cmd) < 0)
@@ -117,9 +124,10 @@ void Manager::execute(string commandStr) {
         }
         else
         {
-	    cout << "Here!" << endl;
-	    fs.close();
+	//    cout << "Restore stdout!" << endl;
+	//    fs.close();
             dup2(save_stdout, 1);
+	    close(save_stdout);
 	    redirect = false;
 	    filename = "";
             wasSuccess = true;
