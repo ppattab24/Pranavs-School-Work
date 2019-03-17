@@ -8,6 +8,9 @@ string filename = "";
 
 vector<Token> cl;
 
+int save_stdout = 0;
+
+
 void Manager::run() {
 
     char input[1024];
@@ -94,12 +97,12 @@ void Manager::execute(string commandStr) {
     else if (process_id == 0)     
     {
 //	fstream fs;
-	int save_stdout;
-
+	int execvp_output = 0;
         if(redirect)
 	{
 	//	cout << "Enter here" << endl;
 	        save_stdout = dup(1);
+		//cout << save_stdout << endl;
 	   //	close(1);
 	   /*     cout << "1)" << endl;
 		fs.open(filename);
@@ -109,7 +112,7 @@ void Manager::execute(string commandStr) {
 
 	 	int fd = open( filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
         	int _fd_dup = dup2(fd,1);
-        	close(fd);
+        	//close(fd);
         	if(_fd_dup != 1)
 		{
             		fprintf(stderr, "Failed to redirect command output.\n");
@@ -117,17 +120,19 @@ void Manager::execute(string commandStr) {
         	}
 	}
 
-        if(execvp(*cmd, cmd) < 0)
+	execvp_output = execvp(*cmd, cmd);
+	dup2(save_stdout, 1);
+	close(save_stdout);
+
+        if(execvp_output  < 0)
         {
             cerr << "ERROR: command failed to execute()" << endl;
             wasSuccess = false;
         }
         else
         {
-	//    cout << "Restore stdout!" << endl;
+	    cout << "Restore stdout!" << endl;
 	//    fs.close();
-            dup2(save_stdout, 1);
-	    close(save_stdout);
 	    redirect = false;
 	    filename = "";
             wasSuccess = true;

@@ -1,12 +1,13 @@
-total 244
+total 248
 -rwxrwxrwx 1 tla tla  18692 Mar 14 19:32 CMakeCache.txt
-drwxrwxrwx 1 tla tla   4096 Mar 16 19:50 CMakeFiles
+drwxrwxrwx 1 tla tla   4096 Mar 16 20:44 CMakeFiles
 -rwxrwxrwx 1 tla tla    410 Mar 14 19:31 CMakeLists.txt
 -rwxrwxrwx 1 tla tla  12566 Mar 14 19:32 Makefile
 -rwxrwxrwx 1 tla tla   3400 Mar 14 19:31 README.md
+-rwxrwxrwx 1 tla tla      0 Mar 16 19:57 a.txt
 drwxrwxrwx 1 tla tla   4096 Mar 14 19:32 bin
 -rwxrwxrwx 1 tla tla   1744 Mar 14 19:32 cmake_install.cmake
--rwxrwxrwx 1 tla tla      0 Mar 16 19:53 example.txt
+-rwxrwxrwx 1 tla tla      0 Mar 16 20:44 example.txt
 drwxrwxrwx 1 tla tla   4096 Mar 14 19:32 googletest
 drwxrwxrwx 1 tla tla   4096 Mar 16 09:48 header
 drwxrwxrwx 1 tla tla   4096 Mar 14 19:31 images
@@ -15,6 +16,6 @@ drwxrwxrwx 1 tla tla   4096 Mar 14 19:32 lib
 -rwxrwxrwx 1 tla tla     84 Mar 14 19:31 names.txt
 -rwxrwxrwx 1 tla tla    549 Mar 14 19:31 outLine.txt
 drwxrwxrwx 1 tla tla   4096 Mar 14 19:31 prototype
--rwxrwxrwx 1 tla tla 202248 Mar 16 19:50 rshell
-drwxrwxrwx 1 tla tla   4096 Mar 16 19:53 src
+-rwxrwxrwx 1 tla tla 202288 Mar 16 20:44 rshell
+drwxrwxrwx 1 tla tla   4096 Mar 16 20:43 src
 drwxrwxrwx 1 tla tla   4096 Mar 14 19:31 unit_tests
