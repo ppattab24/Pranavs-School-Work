@@ -31,6 +31,8 @@ Token::Token(string str, bool Tests) : str(cutDown(str)) {
     else if (this->str == "<") {status = redirectLeft;}
     
     else if (this->str == ">") {status = redirectRight;}
+
+    else if (this->str == ">>") {status = redirectDoubleRight;}
     
     else if (this->str == "|") {status = Pipe;}
        

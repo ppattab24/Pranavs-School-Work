@@ -144,7 +144,7 @@ void Parse::_init(char *cstring, char parser, bool quotesSeparately, bool Tests)
             }
             else {q.push(Token(currentStr, Tests));}
 
-	//    cout << "q.back = " << q.back().getStatus() << endl;
+	   // cout << "q.back = " << q.back().toString() << endl;
         }
 
 

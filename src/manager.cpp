@@ -3,6 +3,10 @@
 #include "../header/manager.h"
 
 bool redirect = false;
+bool redirectRight = false;
+bool redirectDoubleRight = false;
+bool redirectLeft = false;
+bool Pipe = false;
 
 string filename = "";
 
@@ -74,7 +78,6 @@ void Manager::run() {
 
 void Manager::execute(string commandStr) {
 
- // cout << commandStr << endl;
     char * cStr = str_to_char(commandStr);
     char * cmd[64];
     memset(cmd, 0, sizeof(cmd));
@@ -83,6 +86,23 @@ void Manager::execute(string commandStr) {
 
     pid_t process_id;
     int status;
+    int fd;
+    int save_stdout;
+    
+    if(redirect)
+    {
+	if(!redirectLeft)
+    		save_stdout = dup(1);
+	else if(redirectLeft)
+	{
+		save_stdout = dup(0);
+		fd = open( filename.c_str(), O_RDONLY);
+	}
+    	if(redirectRight)
+    		fd = open( filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    	else if(redirectDoubleRight)
+		fd = open(filename.c_str(), O_WRONLY|O_CREAT|O_APPEND, 0666);
+    }
 
     if (equals(*cmd, "exit", false)){
 
@@ -96,33 +116,25 @@ void Manager::execute(string commandStr) {
     }
     else if (process_id == 0)     
     {
-//	fstream fs;
 	int execvp_output = 0;
         if(redirect)
 	{
-	//	cout << "Enter here" << endl;
-	        save_stdout = dup(1);
-		//cout << save_stdout << endl;
-	   //	close(1);
-	   /*     cout << "1)" << endl;
-		fs.open(filename);
-		int test = dup(1);
-		cout << "The file descriptor 1 is currently at: " << test << endl;
-		cout << "2)" << endl;*/
-
-	 	int fd = open( filename.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0600);
-        	int _fd_dup = dup2(fd,1);
-        	//close(fd);
-        	if(_fd_dup != 1)
+		if(!redirectLeft)
 		{
-            		fprintf(stderr, "Failed to redirect command output.\n");
-            		exit(0);
-        	}
+			dup2(fd,1);
+        		close(fd);
+			close(save_stdout);
+		}
+
+		else if(redirectLeft)
+		{
+			dup2(fd,0);
+			close(fd);
+			close(save_stdout);		
+		}
 	}
 
 	execvp_output = execvp(*cmd, cmd);
-	dup2(save_stdout, 1);
-	close(save_stdout);
 
         if(execvp_output  < 0)
         {
@@ -132,9 +144,6 @@ void Manager::execute(string commandStr) {
         else
         {
 	    cout << "Restore stdout!" << endl;
-	//    fs.close();
-	    redirect = false;
-	    filename = "";
             wasSuccess = true;
         }
     }
@@ -142,6 +151,25 @@ void Manager::execute(string commandStr) {
     {
         
         wasSuccess = true;
+	if(save_stdout)
+	{
+		if(!redirectLeft)
+			dup2(save_stdout, 1);
+		else if(redirectLeft)
+			dup2(save_stdout, 0);
+		close(fd);
+		close(save_stdout);
+		redirect = false;
+		redirectRight = false;
+		redirectDoubleRight = false;
+		redirectLeft = false;
+		Pipe = false;
+
+	        filename = "";
+
+	//	cout << "File is supposed to close here" << endl;
+	}
+
         while(wait(&status) != process_id);
 
         if(WEXITSTATUS(status)) {wasSuccess = false;}
@@ -149,6 +177,8 @@ void Manager::execute(string commandStr) {
 
 
     delete [] cStr;
+ //   close(fd); // original
+
 }
 
 void Manager::parse(char *input, char **command)
@@ -189,15 +219,15 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
     queue<Token> dummy = token_postfix_queue;
     queue<Token> connectors;
 
-   /* cout << "This is the queue, it has a size of: " << token_postfix_queue.size() << endl;
+    /*cout << "This is the queue, it has a size of: " << token_postfix_queue.size() << endl;
     while(!dummy.empty())
     {
     	    cout << dummy.front().toString() << "'s status: ";
 	    cout << dummy.front().getStatus() << " ";
 	    dummy.pop();
     }
-    cout << endl;
-    dummy = token_postfix_queue;*/
+    cout << endl;*/
+    dummy = token_postfix_queue;
 
   //  cout << "The queue's contents are: " << endl;
     
@@ -464,7 +494,7 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
             Token op1 = token_eval_stack.top();
             token_eval_stack.pop();
 
-	   // cout << "!!!!" << endl;
+	//    cout << connector.toString() << endl;
 	    // New
 	    if(connector.toString() != "&&" || connector.toString() != "||")
 	    {
@@ -472,6 +502,19 @@ void Manager::evalParsed(queue<Token>& token_postfix_queue)
 		{
 			op1.setStatus(Token::redirectRight);
 		}
+		else if(connector.getStatus() == Token::redirectDoubleRight)
+		{
+			op1.setStatus(Token::redirectDoubleRight);
+		}
+		else if(connector.getStatus() == Token::redirectLeft)
+		{
+			op1.setStatus(Token::redirectLeft);
+		}
+		else
+		{
+	
+		}
+
 	    }
 
 	    // End New
@@ -559,7 +602,7 @@ void Manager::evaluate(vector<Token> bin)
     ifstream path(bin[0].toString().c_str());
  //   cout << "The bin size is " << bin.size() << endl; 
   //  cout << "This Token is '" << bin[0].toString() << "' it's status is: ";
- //   cout << bin[0].getStatus() << endl << endl;
+   // cout << bin[1].toString() << endl << endl;
     switch (bin[0].getStatus())
     {
         case Token::middle:
@@ -577,6 +620,21 @@ void Manager::evaluate(vector<Token> bin)
 	    //cout << "Here" << endl;
 	    filename = bin[2].toString();
     	    redirect = true;
+	    redirectRight = true;
+       	    execute(bin[0].toString());
+	    break;
+	case Token::redirectDoubleRight:
+	    //cout << "Here" << endl;
+	    filename = bin[2].toString();
+    	    redirect = true;
+	    redirectDoubleRight = true;
+       	    execute(bin[0].toString());
+	    break;
+	case Token::redirectLeft:
+	    //cout << "Here" << endl;
+	    filename = bin[2].toString();
+    	    redirect = true;
+	    redirectLeft = true;
        	    execute(bin[0].toString());
 	    break;
 	case Token::test1:
